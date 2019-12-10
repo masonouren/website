@@ -32,6 +32,24 @@
     </item>
     
     <item>
+      <title>Computational Biology Project 2</title>
+      <link>/project2/</link>
+      <pubDate>Tue, 26 Nov 2019 00:00:00 +0000</pubDate>
+      
+      <guid>/project2/</guid>
+      <description>Project 2: ModelingFor this project, I selected a dataset containing information about dementia patients. The variables in this dataset include patient identification, dementia status (binary; either demented or nondemented), gender (M/F), age, years of education (EDUC), socioeconomic status (SES), score from a minimal mental state exam (MMSE), estimated total intracranial volume (eTIV), normalized whole brain volume (nWBV), and the Atlas scaling factor (ASF) (this was not used much in the practical analysis).</description>
+    </item>
+    
+    <item>
+      <title>Project 1</title>
+      <link>/project1/</link>
+      <pubDate>Sun, 20 Oct 2019 00:00:00 +0000</pubDate>
+      
+      <guid>/project1/</guid>
+      <description>IntroductionFor this project, I selected two datasets that both contained data on various countries around the world. While one contained many different statistics on countries around the world collected by the US government (like population, region, area size, infant mortality, etc.), the other contained the World Happiness Report collected by the Gallup World Poll. It contains 6 key variables and the extent that they determine a country’s happiness: Economy (GDP), Family, Life Expectancy, Freedom, Trust in the Government, and Generosity.</description>
+    </item>
+    
+    <item>
       <title>Projects</title>
       <link>/projects/</link>
       <pubDate>Sun, 02 Oct 2016 22:55:05 -0400</pubDate>
@@ -49,15 +67,6 @@
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
       
       <guid>/project2_fd_mo/</guid>
-      <description>Project 2: ModelingFor this project, I selected a dataset containing information about dementia patients. The variables in this dataset include patient identification, dementia status (binary; either demented or nondemented), gender (M/F), age, years of education (EDUC), socioeconomic status (SES), score from a minimal mental state exam (MMSE), estimated total intracranial volume (eTIV), normalized whole brain volume (nWBV), and the Atlas scaling factor (ASF) (this was not used much in the practical analysis).</description>
-    </item>
-    
-    <item>
-      <title>Computational Biology Project 2</title>
-      <link>/project2/</link>
-      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
-      
-      <guid>/project2/</guid>
       <description>Project 2: ModelingFor this project, I selected a dataset containing information about dementia patients. The variables in this dataset include patient identification, dementia status (binary; either demented or nondemented), gender (M/F), age, years of education (EDUC), socioeconomic status (SES), score from a minimal mental state exam (MMSE), estimated total intracranial volume (eTIV), normalized whole brain volume (nWBV), and the Atlas scaling factor (ASF) (this was not used much in the practical analysis).</description>
     </item>
     

@@ -1,0 +1,572 @@
+<!DOCTYPE html>
+<html lang="en-US">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="author" content="Mason Ouren" />
+    <meta name="description" content="This is my website">
+    <link rel="shortcut icon" type="image/x-icon" href="/img/favicon.ico">
+    <title>Project 1</title>
+    <meta name="generator" content="Hugo 0.60.1" />
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+    <link rel="stylesheet" type="text/css" href="/css/main.css" />
+    <link rel="stylesheet" type="text/css" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" />
+    <link rel="stylesheet" type="text/css" href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:200,400,200bold,400old" />
+    
+    <!--[if lt IE 9]>
+			<script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+			<script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
+		<![endif]-->
+
+    
+  </head>
+
+  <body>
+    <div id="wrap">
+
+      
+      <nav class="navbar navbar-default">
+  <div class="container">
+    <div class="navbar-header">
+      <a class="navbar-brand" href="/"><i class="fa fa-home"></i></a>
+      <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#navbar">
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+    </div>
+    <div class="navbar-collapse collapse" id="navbar">
+      <ul class="nav navbar-nav navbar-right">
+      
+        
+        <li><a href="/blog/">BLOG</a></li>
+        
+        <li><a href="/projects/">PROJECTS</a></li>
+        
+        <li><a href="/resume_mason-ouren_2019-11-05.pdf">RESUME</a></li>
+        
+      
+      </ul>
+    </div>
+  </div>
+</nav>
+
+      
+      <div class="container">
+        <div class="blog-post">
+          <h3>
+            <strong><a href="/project1/">Project 1</a></strong>
+          </h3>
+        </div>
+        <div class="blog-title">
+          <h4>
+          October 20, 2019
+            &nbsp;&nbsp;
+            
+          </h4>
+        </div>
+        <div class="panel panel-default">
+          <div class="panel-body">
+            <div class="blogpost">
+              
+
+
+<div id="introduction" class="section level3">
+<h3>Introduction</h3>
+<div id="for-this-project-i-selected-two-datasets-that-both-contained-data-on-various-countries-around-the-world.-while-one-contained-many-different-statistics-on-countries-around-the-world-collected-by-the-us-government-like-population-region-area-size-infant-mortality-etc.-the-other-contained-the-world-happiness-report-collected-by-the-gallup-world-poll.-it-contains-6-key-variables-and-the-extent-that-they-determine-a-countrys-happiness-economy-gdp-family-life-expectancy-freedom-trust-in-the-government-and-generosity.-nearly-every-variable-in-these-datasets-is-a-numeric-variable-which-allows-for-many-different-tests-for-associationsparticularly-with-what-variables-contribute-most-to-world-happiness-across-the-two-datasets.-i-was-interested-in-these-datasets-because-i-wanted-to-see-if-the-conventional-expectations-of-what-makes-people-happy-are-in-fact-most-highly-correlated-with-happiness-on-a-worldwide-scale.-does-money-necessarily-mean-happiness-does-technology-mortality-these-are-questions-i-was-hoping-to-explore-with-the-expectation-that-generally-wealthier-and-more-technologically-advanced-countries-would-be-happier." class="section level5">
+<h5>For this project, I selected two datasets that both contained data on various countries around the world. While one contained many different statistics on countries around the world collected by the US government (like population, region, area size, infant mortality, etc.), the other contained the World Happiness Report collected by the Gallup World Poll. It contains 6 key variables and the extent that they determine a country’s happiness: Economy (GDP), Family, Life Expectancy, Freedom, Trust in the Government, and Generosity. Nearly every variable in these datasets is a numeric variable, which allows for many different tests for associations–particularly with what variables contribute most to world happiness across the two datasets. I was interested in these datasets because I wanted to see if the conventional expectations of what makes people “happy” are, in fact, most highly correlated with happiness on a worldwide scale. Does money necessarily mean happiness? Does technology? Mortality? These are questions I was hoping to explore, with the expectation that, generally, wealthier and more technologically advanced countries would be happier.</h5>
+<p>#####<em>reading the datasets into the file</em></p>
+<pre class="r"><code>countries &lt;- read.csv(&quot;C:/Users/mason/OneDrive/SDS 348 Comp Bio/countries of the world.csv&quot;)
+happiness &lt;- read.csv(&quot;C:/Users/mason/OneDrive/SDS 348 Comp Bio/2017.csv&quot;)</code></pre>
+</div>
+</div>
+<div id="tidying-rearranging-widelong" class="section level3">
+<h3>Tidying: Rearranging Wide/Long</h3>
+<div id="datasets-are-tidy-so-using-pivot_longer-to-make-them-untidy-then-pivot_wider-to-make-the-tidy-again.-the-number-of-rows-doubles-when-i-use-pivot_longer-and-new-variables-are-created-one-with-the-previous-column-names-and-the-other-containing-the-corresponding-values." class="section level5">
+<h5><em>Datasets are tidy, so using pivot_longer() to make them untidy then pivot_wider() to make the tidy again. The number of rows doubles when I use pivot_longer() and new variables are created: one with the previous column names, and the other containing the corresponding values.</em></h5>
+<pre class="r"><code>happiness_untidy &lt;- happiness %&gt;% pivot_longer(cols = c(Whisker.high, Whisker.low), names_to = &quot;untidy&quot;)
+head(happiness_untidy)</code></pre>
+<pre><code>## # A tibble: 6 x 12
+##   Country Happiness.Rank Happiness.Score Economy..GDP.pe~ Family
+##   &lt;fct&gt;            &lt;int&gt;           &lt;dbl&gt;            &lt;dbl&gt;  &lt;dbl&gt;
+## 1 Norway               1            7.54             1.62   1.53
+## 2 Norway               1            7.54             1.62   1.53
+## 3 Denmark              2            7.52             1.48   1.55
+## 4 Denmark              2            7.52             1.48   1.55
+## 5 Iceland              3            7.50             1.48   1.61
+## 6 Iceland              3            7.50             1.48   1.61
+## # ... with 7 more variables: Health..Life.Expectancy. &lt;dbl&gt;,
+## #   Freedom &lt;dbl&gt;, Generosity &lt;dbl&gt;, Trust..Government.Corruption. &lt;dbl&gt;,
+## #   Dystopia.Residual &lt;dbl&gt;, untidy &lt;chr&gt;, value &lt;dbl&gt;</code></pre>
+<pre class="r"><code>happiness_tidy &lt;- happiness_untidy %&gt;% pivot_wider(names_from = &quot;untidy&quot;, values_from = &quot;value&quot;)
+head(happiness_tidy)</code></pre>
+<pre><code>## # A tibble: 6 x 12
+##   Country Happiness.Rank Happiness.Score Economy..GDP.pe~ Family
+##   &lt;fct&gt;            &lt;int&gt;           &lt;dbl&gt;            &lt;dbl&gt;  &lt;dbl&gt;
+## 1 Norway               1            7.54             1.62   1.53
+## 2 Denmark              2            7.52             1.48   1.55
+## 3 Iceland              3            7.50             1.48   1.61
+## 4 Switze~              4            7.49             1.56   1.52
+## 5 Finland              5            7.47             1.44   1.54
+## 6 Nether~              6            7.38             1.50   1.43
+## # ... with 7 more variables: Health..Life.Expectancy. &lt;dbl&gt;,
+## #   Freedom &lt;dbl&gt;, Generosity &lt;dbl&gt;, Trust..Government.Corruption. &lt;dbl&gt;,
+## #   Dystopia.Residual &lt;dbl&gt;, Whisker.high &lt;dbl&gt;, Whisker.low &lt;dbl&gt;</code></pre>
+<pre class="r"><code>countries_untidy &lt;- countries %&gt;% 
+  pivot_longer(cols = c(Birthrate, Deathrate), names_to = &quot;untidy&quot;)
+head(countries_untidy)</code></pre>
+<pre><code>## # A tibble: 6 x 20
+##   Country Region Population Area..sq..mi.. Pop..Density..p~
+##   &lt;fct&gt;   &lt;fct&gt;       &lt;int&gt;          &lt;int&gt; &lt;fct&gt;           
+## 1 &quot;Afgha~ &quot;ASIA~   31056997         647500 48,0            
+## 2 &quot;Afgha~ &quot;ASIA~   31056997         647500 48,0            
+## 3 &quot;Alban~ &quot;EAST~    3581655          28748 124,6           
+## 4 &quot;Alban~ &quot;EAST~    3581655          28748 124,6           
+## 5 &quot;Alger~ &quot;NORT~   32930091        2381740 13,8            
+## 6 &quot;Alger~ &quot;NORT~   32930091        2381740 13,8            
+## # ... with 15 more variables: Coastline..coast.area.ratio. &lt;fct&gt;,
+## #   Net.migration &lt;fct&gt;, Infant.mortality..per.1000.births. &lt;fct&gt;,
+## #   GDP....per.capita. &lt;int&gt;, Literacy.... &lt;fct&gt;, Phones..per.1000. &lt;fct&gt;,
+## #   Arable.... &lt;fct&gt;, Crops.... &lt;fct&gt;, Other.... &lt;fct&gt;, Climate &lt;fct&gt;,
+## #   Agriculture &lt;fct&gt;, Industry &lt;fct&gt;, Service &lt;fct&gt;, untidy &lt;chr&gt;,
+## #   value &lt;fct&gt;</code></pre>
+<pre class="r"><code>countries_tidy &lt;- countries_untidy %&gt;% 
+  pivot_wider(names_from = &quot;untidy&quot;, values_from = &quot;value&quot;)
+# Creating an updated dataset where some of the country names are corrected to match the &quot;happiness&quot; dataset and cause fewer rows to have many NAs.
+countries_tidy1 &lt;- countries_tidy %&gt;% 
+  rename(&quot;Country1&quot; = &quot;Country&quot;) %&gt;% 
+  mutate(Country = recode(Country1, &quot;Korea, South&quot; = &quot;South Korea&quot;, &quot;Trinidad &amp; Tobago&quot; = &quot;Trinidad and Tobago&quot;, &quot;Taiwan&quot; = &quot;Taiwan Province of China&quot;, &quot;Hong Kong&quot; = &quot;Hong Kong S.A.R., China&quot;, &quot;Congo, Repub. of the&quot; = &quot;Congo (Brazzaville)&quot;, &quot;Congo, Dem. Rep.&quot; = &quot;Congo (Kinshasa)&quot;, &quot;Central African Rep.&quot; = &quot;Central African Republic&quot;)) %&gt;%
+  select(-c(Country1))
+head(countries_tidy1)</code></pre>
+<pre><code>## # A tibble: 6 x 20
+##   Region Population Area..sq..mi.. Pop..Density..p~ Coastline..coas~
+##   &lt;fct&gt;       &lt;int&gt;          &lt;int&gt; &lt;fct&gt;            &lt;fct&gt;           
+## 1 &quot;ASIA~   31056997         647500 48,0             0,00            
+## 2 &quot;EAST~    3581655          28748 124,6            1,26            
+## 3 &quot;NORT~   32930091        2381740 13,8             0,04            
+## 4 &quot;OCEA~      57794            199 290,4            58,29           
+## 5 &quot;WEST~      71201            468 152,1            0,00            
+## 6 &quot;SUB-~   12127071        1246700 9,7              0,13            
+## # ... with 15 more variables: Net.migration &lt;fct&gt;,
+## #   Infant.mortality..per.1000.births. &lt;fct&gt;, GDP....per.capita. &lt;int&gt;,
+## #   Literacy.... &lt;fct&gt;, Phones..per.1000. &lt;fct&gt;, Arable.... &lt;fct&gt;,
+## #   Crops.... &lt;fct&gt;, Other.... &lt;fct&gt;, Climate &lt;fct&gt;, Agriculture &lt;fct&gt;,
+## #   Industry &lt;fct&gt;, Service &lt;fct&gt;, Birthrate &lt;fct&gt;, Deathrate &lt;fct&gt;,
+## #   Country &lt;fct&gt;</code></pre>
+</div>
+</div>
+<div id="joiningmerging" class="section level3">
+<h3>Joining/Merging</h3>
+<div id="joining-the-datasets-with-left_join-this-results-in-a-dataset-that-has-155-rows-and-31-variables.-i-chose-to-left_join-countries-to-happiness-because-most-of-the-happiness-countries-had-data-in-the-countries-dataset-but-not-all-of-the-countries-countries-had-data-in-the-happiness-dataset.-joining-in-this-way-created-a-dataset-with-fewer-rows-containing-nas-however-an-na.omit-step-is-still-needed." class="section level5">
+<h5><em>joining the datasets with left_join(); this results in a dataset that has 155 rows and 31 variables. I chose to left_join() “countries” to “happiness” because most of the “happiness” countries had data in the “countries” dataset, but not all of the “countries” countries had data in the "happiness dataset. Joining in this way created a dataset with fewer rows containing NAs; however, an na.omit() step is still needed.</em></h5>
+<pre class="r"><code>#join &lt;- left_join(happiness_tidy, countries_tidy1, by = &quot;Country&quot;)
+#head(join)
+
+join &lt;- read.csv(&quot;C:/Users/mason/OneDrive/SDS 348 Comp Bio/join.csv&quot;)
+#I had to do this because, for some reason, joining the datasets on the server made the second dataset all NAs. This same code worked perfectly fine on my computer (not the server). So, as a workaround, I uploaded the file from my computer where all of the data is present. I hope this is alright</code></pre>
+</div>
+<div id="since-the-countries-dataset-used-commas-instead-of-periods-for-decimals-i-needed-to-replace-them-with-periods-to-make-those-columns-numeric" class="section level5">
+<h5><em>Since the “countries” dataset used commas instead of periods for decimals, I needed to replace them with periods to make those columns numeric:</em></h5>
+<pre class="r"><code>join1 &lt;- apply(apply(join, 2, gsub, patt=&quot;,&quot;, replace=&quot;.&quot;), 2, as.numeric)</code></pre>
+<pre><code>## Warning in apply(apply(join, 2, gsub, patt = &quot;,&quot;, replace = &quot;.&quot;), 2,
+## as.numeric): NAs introduced by coercion
+
+## Warning in apply(apply(join, 2, gsub, patt = &quot;,&quot;, replace = &quot;.&quot;), 2,
+## as.numeric): NAs introduced by coercion</code></pre>
+<pre class="r"><code>#head(join1)</code></pre>
+</div>
+<div id="since-this-made-the-country-names-and-regions-turn-into-nas-im-deleting-those-columns-from-join1-using-select-c-saving-as-join2-selecting-those-two-columns-from-the-join-dataset-saving-as-columns-using-cbind-to-stick-them-onto-the-join2-dataset-making-the-join3-dataset.-i-also-had-to-turn-join1-into-a-dataframe-because-it-turned-into-a-matrix.-i-now-have-a-data-frame-where-all-of-the-commas-are-periods-and-all-variables-are-correctly-characterized-numeric-or-character." class="section level5">
+<h5><em>Since this made the country names and regions turn into NAs, I’m deleting those columns from join1 using select(-c()), saving as “join2”, selecting those two columns from the “join” dataset, saving as “columns”, using cbind() to stick them onto the join2 dataset, making the join3 dataset. I also had to turn “join1” into a dataframe because it turned into a matrix. I now have a data frame where all of the commas are periods and all variables are correctly characterized (numeric or character).</em></h5>
+<pre class="r"><code>join1 &lt;- as.data.frame(join1)
+join2 &lt;- join1 %&gt;% select(-c(Country), -c(Region))
+columns &lt;- join %&gt;% select(Country, Region)
+join3 &lt;- cbind(join2, columns)
+#head(join3)</code></pre>
+</div>
+<div id="for-number-of-rows-lost-in-join-i-am-using-anti_join-and-nrow-to-determine-the-number-of-rows-in-countries_tidy1-that-are-not-in-happiness-i-am-also-doing-an-anti_join-in-the-reverse-order-to-see-how-many-rows-are-in-the-happiness-dataset-that-are-not-in-the-countries_tidy1-dataset.-87-rows-from-the-countries-dataset-were-not-in-the-happiness-dataset-and-were-lost-in-the-join.-8-rows-in-the-happiness-dataset-are-not-in-the-countries-dataset-and-were-not-lost-in-the-join-but-will-be-lost-if-na.omit-is-performed.-some-other-rows-will-also-be-lost-if-na.omit-is-performed-due-to-incompleteness." class="section level5">
+<h5><em>For number of rows lost in join, I am using anti_join() and nrow() to determine the number of rows in “countries_tidy1” that are not in “happiness”; I am also doing an anti_join() in the reverse order to see how many rows are in the “happiness” dataset that are not in the “countries_tidy1” dataset. 87 rows from the “countries” dataset were not in the “happiness” dataset, and were lost in the join. 8 rows in the “happiness” dataset are not in the “countries” dataset and were not lost in the join, but will be lost if na.omit() is performed. Some other rows will also be lost if na.omit is performed due to incompleteness.</em></h5>
+<pre class="r"><code>countries_rows_lost &lt;- anti_join(countries_tidy1, happiness)</code></pre>
+<pre><code>## Joining, by = &quot;Country&quot;</code></pre>
+<pre><code>## Warning: Column `Country` joining factors with different levels, coercing
+## to character vector</code></pre>
+<pre class="r"><code>print(nrow(countries_rows_lost))</code></pre>
+<pre><code>## [1] 227</code></pre>
+<pre class="r"><code>happiness_rows_lost &lt;- anti_join(happiness, countries_tidy1)</code></pre>
+<pre><code>## Joining, by = &quot;Country&quot;</code></pre>
+<pre><code>## Warning: Column `Country` joining factors with different levels, coercing
+## to character vector</code></pre>
+<pre class="r"><code>print(nrow(happiness_rows_lost))</code></pre>
+<pre><code>## [1] 155</code></pre>
+</div>
+</div>
+<div id="wrangling" class="section level3">
+<h3>Wrangling</h3>
+<div id="filtering-for-countries-with-a-happiness-score-that-is-greater-than-the-mean-and-storing-in-new-dataset-called-very_happy.-the-resulting-dataset-has-73-rows-with-happiness-scores-ranging-from-5.395-to-7.537." class="section level5">
+<h5><em>Filtering for countries with a happiness score that is greater than the mean, and storing in new dataset called “very_happy”. The resulting dataset has 73 rows, with happiness scores ranging from 5.395 to 7.537.</em></h5>
+<pre class="r"><code>very_happy &lt;- join3 %&gt;% filter(Happiness.Score, Happiness.Score &gt; mean(Happiness.Score))
+print(max(very_happy$Happiness.Score))</code></pre>
+<pre><code>## [1] 7.537</code></pre>
+<pre class="r"><code>print(min(very_happy$Happiness.Score))</code></pre>
+<pre><code>## [1] 5.395</code></pre>
+</div>
+<div id="selecting-only-the-columns-for-country-happiness-rank-happiness-score-birth-rate-and-death-rate-results-in-a-5-column-dataset-saved-as-happy_life_death." class="section level5">
+<h5><em>Selecting only the columns for country, happiness rank, happiness score, birth rate, and death rate; results in a 5-column dataset saved as “happy_life_death”.</em></h5>
+<pre class="r"><code>happy_life_death &lt;- join3 %&gt;% select(Country, Happiness.Rank, Happiness.Score, Birthrate, Deathrate)
+head(happy_life_death)</code></pre>
+<pre><code>##       Country Happiness.Rank Happiness.Score Birthrate Deathrate
+## 1      Norway              1           7.537     11.46      9.40
+## 2     Denmark              2           7.522     11.13     10.36
+## 3     Iceland              3           7.504     13.64      6.72
+## 4 Switzerland              4           7.494      9.71      8.49
+## 5     Finland              5           7.469     10.45      9.86
+## 6 Netherlands              6           7.377     10.90      8.68</code></pre>
+</div>
+<div id="arranging-by-descending-amount-of-arable-land.-the-observation-containing-the-highest-percentage-of-arable-land-is-at-the-top-and-the-lowest-is-at-the-bottom." class="section level5">
+<h5><em>Arranging by descending amount of arable land. The observation containing the highest percentage of arable land is at the top, and the lowest is at the bottom.</em></h5>
+<pre class="r"><code>lots_of_farming &lt;- join3 %&gt;% arrange(desc(`Arable....`))
+#head(lots_of_farming)</code></pre>
+</div>
+<div id="grouping-by-region.-this-will-let-me-calculate-summarizing-statistics-later-according-to-region." class="section level5">
+<h5><em>Grouping by region. This will let me calculate summarizing statistics later according to region.</em></h5>
+<pre class="r"><code>grouped &lt;- join3 %&gt;% group_by(Region)</code></pre>
+<pre><code>## Warning: Factor `Region` contains implicit NA, consider using
+## `forcats::fct_explicit_na`</code></pre>
+<pre class="r"><code>head(grouped)</code></pre>
+<pre><code>## # A tibble: 6 x 32
+## # Groups:   Region [1]
+##       X Happiness.Rank Happiness.Score Economy..GDP.pe~ Family
+##   &lt;dbl&gt;          &lt;dbl&gt;           &lt;dbl&gt;            &lt;dbl&gt;  &lt;dbl&gt;
+## 1     1              1            7.54             1.62   1.53
+## 2     2              2            7.52             1.48   1.55
+## 3     3              3            7.50             1.48   1.61
+## 4     4              4            7.49             1.56   1.52
+## 5     5              5            7.47             1.44   1.54
+## 6     6              6            7.38             1.50   1.43
+## # ... with 27 more variables: Health..Life.Expectancy. &lt;dbl&gt;,
+## #   Freedom &lt;dbl&gt;, Generosity &lt;dbl&gt;, Trust..Government.Corruption. &lt;dbl&gt;,
+## #   Dystopia.Residual &lt;dbl&gt;, Whisker.high &lt;dbl&gt;, Whisker.low &lt;dbl&gt;,
+## #   Population &lt;dbl&gt;, Area..sq..mi.. &lt;dbl&gt;,
+## #   Pop..Density..per.sq..mi.. &lt;dbl&gt;, Coastline..coast.area.ratio. &lt;dbl&gt;,
+## #   Net.migration &lt;dbl&gt;, Infant.mortality..per.1000.births. &lt;dbl&gt;,
+## #   GDP....per.capita. &lt;dbl&gt;, Literacy.... &lt;dbl&gt;, Phones..per.1000. &lt;dbl&gt;,
+## #   Arable.... &lt;dbl&gt;, Crops.... &lt;dbl&gt;, Other.... &lt;dbl&gt;, Climate &lt;dbl&gt;,
+## #   Agriculture &lt;dbl&gt;, Industry &lt;dbl&gt;, Service &lt;dbl&gt;, Birthrate &lt;dbl&gt;,
+## #   Deathrate &lt;dbl&gt;, Country &lt;fct&gt;, Region &lt;fct&gt;</code></pre>
+</div>
+<div id="adding-2-new-columns-using-mutate.-one-contains-a-function-that-calculates-the-z-score-of-generosity-and-the-other-the-percent-rank-of-generosity-compared-to-other-countries." class="section level5">
+<h5><em>Adding 2 new columns using mutate(). One contains a function that calculates the Z-score of “Generosity”, and the other the percent rank of “Generosity” compared to other countries.</em></h5>
+<pre class="r"><code>GenerosityZ &lt;- function(x){(x - mean(x))/sd(x)}
+join4 &lt;- join3 %&gt;% mutate(&quot;GenerosityZ&quot; = GenerosityZ(Generosity), &quot;Generosity.percent.rank&quot; = percent_rank(Generosity))
+#head(join4)</code></pre>
+</div>
+<div id="summarizing-every-variable-in-the-dataset-using-summarize_all.-i-used-na.omit-to-remove-rows-that-would-keep-a-mean-from-being-generated-for-a-given-variable." class="section level5">
+<h5><em>Summarizing every variable in the dataset using summarize_all(). I used na.omit() to remove rows that would keep a mean from being generated for a given variable.</em></h5>
+<pre class="r"><code>summarized &lt;- join4 %&gt;% na.omit %&gt;% summarize_all(mean)</code></pre>
+<pre><code>## Warning in mean.default(Country): argument is not numeric or logical:
+## returning NA</code></pre>
+<pre><code>## Warning in mean.default(Region): argument is not numeric or logical:
+## returning NA</code></pre>
+<pre class="r"><code>head(summarized)</code></pre>
+<pre><code>##          X Happiness.Rank Happiness.Score Economy..GDP.per.Capita.
+## 1 78.03125       78.03125        5.355234                0.9732635
+##     Family Health..Life.Expectancy.  Freedom Generosity
+## 1 1.185036                0.5413788 0.421552  0.2446049
+##   Trust..Government.Corruption. Dystopia.Residual Whisker.high Whisker.low
+## 1                     0.1307342          1.858623     5.454521    5.255948
+##   Population Area..sq..mi.. Pop..Density..per.sq..mi..
+## 1   46768243       765746.1                     214.75
+##   Coastline..coast.area.ratio. Net.migration
+## 1                     2.289844       0.21875
+##   Infant.mortality..per.1000.births. GDP....per.capita. Literacy....
+## 1                           41.76687           9298.438     80.67266
+##   Phones..per.1000. Arable.... Crops.... Other....  Climate Agriculture
+## 1          194.2937   15.35016  2.732109  81.91797 2.136719   0.1610156
+##    Industry   Service Birthrate Deathrate Country Region GenerosityZ
+## 1 0.3103828 0.5279297   23.5268  10.08313      NA     NA -0.01690587
+##   Generosity.percent.rank
+## 1               0.4980215</code></pre>
+</div>
+<div id="correlation-matrix-can-be-found-in-the-visualizations-section-where-i-generated-a-correlation-heatmap-matrix-is-still-visible-though." class="section level5">
+<h5><em>Correlation matrix can be found in the visualizations section, where I generated a correlation heatmap (matrix is still visible though).</em></h5>
+</div>
+<div id="removing-any-na-containing-rows-from-dataset-and-saving-as-join5." class="section level5">
+<h5><em>Removing any NA-containing rows from dataset and saving as “join5”.</em></h5>
+<pre class="r"><code>join5 &lt;- join4 %&gt;% na.omit()
+#head(join5)</code></pre>
+</div>
+<div id="selecting-5-variables-3-numeric-to-generate-summary-statistics-for-and-then-generating-those-summary-statistics.-then-i-am-reshaping-the-data-to-make-a-better-looking-table.-for-each-of-the-numeric-variables-mean-standard-deviation-variance-minimum-maximum-and-number-of-distinct-values-will-be-calculated.-the-result-is-a-6x4-table-containing-each-of-the-overall-summary-statistics-for-each-of-the-3-variables." class="section level5">
+<h5><em>Selecting 5 variables (3 numeric) to generate summary statistics for, and then generating those summary statistics. Then I am reshaping the data to make a better-looking table. For each of the numeric variables, mean, standard deviation, variance, minimum, maximum, and number of distinct values will be calculated. The result is a 6x4 table containing each of the overall summary statistics for each of the 3 variables.</em></h5>
+<pre class="r"><code>join6 &lt;- join5 %&gt;% select(Country, Region, Generosity, `Phones..per.1000.`, Freedom)
+head(join6)</code></pre>
+<pre><code>##       Country         Region Generosity Phones..per.1000.   Freedom
+## 1      Norway WESTERN EUROPE  0.3620122             461.7 0.6354226
+## 2     Denmark WESTERN EUROPE  0.3552805             614.6 0.6260067
+## 3     Iceland WESTERN EUROPE  0.4755402             647.7 0.6271626
+## 4 Switzerland WESTERN EUROPE  0.2905493             680.9 0.6200706
+## 5     Finland WESTERN EUROPE  0.2454828             405.3 0.6179509
+## 6 Netherlands WESTERN EUROPE  0.4704898             460.8 0.5853845</code></pre>
+<pre class="r"><code>overall_summary &lt;- join6 %&gt;% select(-c(Country, Region)) %&gt;% summarize(mean.generosity = mean(Generosity), sd.generosity = sd(Generosity), var.generosity = var(Generosity), min.generosity = min(Generosity), max.generosity = max(Generosity), ndistinct.generosity = n_distinct(Generosity),
+                                                                       mean.phones = mean(`Phones..per.1000.`), sd.phones = sd(`Phones..per.1000.`), var.phones = var(`Phones..per.1000.`), min.phones = min(`Phones..per.1000.`), max.phones = max(`Phones..per.1000.`), ndistinct.phones = n_distinct(`Phones..per.1000.`),
+                                                                       mean.freedom = mean(Freedom), sd.freedom = sd(Freedom), var.freedom = var(Freedom), min.freedom = min(Freedom), max.freedom = max(Freedom), ndistinct.freedom = n_distinct(Freedom)) %&gt;%
+  pivot_longer(cols = (1:18)) %&gt;%
+  separate(name, into = c(&quot;stat&quot;, &quot;variable&quot;)) %&gt;%
+  pivot_wider(names_from = &quot;variable&quot;, values_from = &quot;value&quot;)
+
+head(overall_summary)</code></pre>
+<pre><code>## # A tibble: 6 x 4
+##   stat      generosity  phones  freedom
+##   &lt;chr&gt;          &lt;dbl&gt;   &lt;dbl&gt;    &lt;dbl&gt;
+## 1 mean          0.245    194.    0.422 
+## 2 sd            0.127    205.    0.147 
+## 3 var           0.0161 42004.    0.0215
+## 4 min           0          0.2   0.0150
+## 5 max           0.612    898     0.658 
+## 6 ndistinct   128        124   128</code></pre>
+</div>
+<div id="now-grouping-those-3-numeric-variables-by-region-calculating-the-same-statistics-and-then-reshaping-to-make-it-nice-to-read." class="section level5">
+<h5><em>Now grouping those 3 numeric variables by Region, calculating the same statistics, and then reshaping to make it nice to read.</em></h5>
+<pre class="r"><code>options(scipen=999) #disabling scientific notation
+
+grouped_summary &lt;- join6 %&gt;% select(-c(Country)) %&gt;% group_by(Region) %&gt;% 
+  summarize(mean.generosity = mean(Generosity), sd.generosity = sd(Generosity), var.generosity = var(Generosity), min.generosity = min(Generosity), max.generosity = max(Generosity), ndistinct.generosity = n_distinct(Generosity),
+   mean.phones = mean(`Phones..per.1000.`), sd.phones = sd(`Phones..per.1000.`), var.phones = var(`Phones..per.1000.`), min.phones = min(`Phones..per.1000.`), max.phones = max(`Phones..per.1000.`), ndistinct.phones = n_distinct(`Phones..per.1000.`),
+   mean.freedom = mean(Freedom), sd.freedom = sd(Freedom), var.freedom = var(Freedom), min.freedom = min(Freedom), max.freedom = max(Freedom), ndistinct.freedom = n_distinct(Freedom)) %&gt;%
+  pivot_longer(cols = (2:19)) %&gt;%
+  separate(name, into = c(&quot;stat&quot;, &quot;variable&quot;)) %&gt;%
+  pivot_wider(names_from = &quot;variable&quot;, values_from = &quot;value&quot;)
+
+head(grouped_summary)</code></pre>
+<pre><code>## # A tibble: 6 x 5
+##   Region               stat      generosity  phones freedom
+##   &lt;fct&gt;                &lt;chr&gt;          &lt;dbl&gt;   &lt;dbl&gt;   &lt;dbl&gt;
+## 1 ASIA (EX. NEAR EAST) mean          0.324    191.   0.443 
+## 2 ASIA (EX. NEAR EAST) sd            0.148    202.   0.139 
+## 3 ASIA (EX. NEAR EAST) var           0.0220 40802.   0.0194
+## 4 ASIA (EX. NEAR EAST) min           0.0288     2.6  0.106 
+## 5 ASIA (EX. NEAR EAST) max           0.612    591    0.633 
+## 6 ASIA (EX. NEAR EAST) ndistinct    20         20   20</code></pre>
+</div>
+<div id="summary" class="section level4">
+<h4>Summary</h4>
+<div id="upon-filtering-for-the-countries-that-were-happier-than-the-mean-happiness-score-the-minimum-just-above-the-mean-was-5.395-and-the-maximum-was-7.537-well-above-the-mean.-when-i-selected-for-specific-columns-the-result-was-a-5-variable-table-with-country-happiness-rank-happiness-score-birthrate-and-deathrate.-when-the-full-set-of-variables-was-arranged-according-to-percent-of-arable-land-the-country-with-the-most-arable-land-was-bangladesh-which-ranked-110th-in-happiness-in-general-it-seems-that-the-countries-with-the-highest-percent-of-arable-land-were-not-among-the-happiest.-upon-grouping-by-region-the-rows-arranged-nicely-according-to-which-region-the-country-was-in.-i-then-used-mutate-to-add-2-new-columns-the-percent-rank-of-a-countrys-generosity-compared-to-the-rest-and-the-z-score-function-handwritten-of-a-countrys-generosity.-after-this-i-summarized-all-of-the-variables-to-find-the-mean.-interestingly-the-mean-number-of-phones-per-1000-people-across-countries-is-194which-seems-like-a-lot-when-i-generated-various-summary-statistics-for-3-different-numeric-variables-nothing-of-significance-seemed-to-pop-outaside-from-the-massive-number-of-phones-per-1000-people-898-as-the-maximum-value-for-a-country.-in-the-grouped-summary-where-statistics-were-taken-according-to-region-western-europe-and-oceania-seem-to-have-the-highest-stats-while-c.w.-of-ind.-states-seems-to-have-some-of-the-lowest-which-agrees-with-their-happiness-rankings." class="section level5">
+<h5><em>Upon filtering for the countries that were happier than the mean happiness score, the minimum (just above the mean) was 5.395 and the maximum was 7.537 (well above the mean). When I selected for specific columns, the result was a 5-variable table with country, happiness rank, happiness score, birthrate, and deathrate. When the full set of variables was arranged according to percent of arable land, the country with the most arable land was Bangladesh, which ranked 110th in happiness (in general, it seems that the countries with the highest percent of arable land were not among the happiest). Upon grouping by region, the rows arranged nicely according to which region the country was in. I then used mutate() to add 2 new columns: the percent rank of a country’s generosity compared to the rest, and the Z-score (function handwritten) of a country’s generosity. After this, I summarized all of the variables to find the mean. Interestingly, the mean number of phones per 1000 people across countries is 194–which seems like a lot! When I generated various summary statistics for 3 different numeric variables, nothing of significance seemed to pop out–aside from the massive number of phones per 1000 people (898!) as the maximum value for a country. In the grouped summary where statistics were taken according to region, Western Europe and Oceania seem to have the highest stats while C.W. OF IND. STATES seems to have some of the lowest (which agrees with their happiness rankings).</em></h5>
+</div>
+</div>
+</div>
+<div id="visualizing" class="section level3">
+<h3>Visualizing</h3>
+<div id="generating-a-scatterplot-that-shows-the-relationship-between-freedom-gdp-and-literacy-rate.-the-color-gradient-of-the-points-was-altered-to-be-more-easily-visible-and-the-theme-was-changed-to-remove-the-background-grid-lines.-the-resulting-plot-is-interesting.-it-suggests-that-a-countrys-gdp-is-not-necessarily-strongly-predicted-by-its-level-of-freedom-as-one-especially-in-america-might-expect-rather-literacy-rate-seems-to-have-much-more-to-do-with-a-countrys-gdp.-in-fact-some-of-the-countries-with-the-lowest-freedom-scores-still-have-gdps-that-are-well-above-most-other-countries." class="section level5">
+<h5><em>Generating a scatterplot that shows the relationship between Freedom, GDP, and Literacy Rate. The color gradient of the points was altered to be more easily visible, and the theme was changed to remove the background grid lines. The resulting plot is interesting. It suggests that a country’s GDP is not necessarily strongly predicted by its level of freedom, as one (especially in America) might expect; rather, literacy rate seems to have much more to do with a country’s GDP. In fact, some of the countries with the lowest freedom scores still have GDPs that are well above most other countries.</em></h5>
+<pre class="r"><code>free.lit.gdp &lt;- join5 %&gt;% ggplot(aes(x = Freedom, y = `GDP....per.capita.`, color = `Literacy....`)) +
+  geom_point(stat=&quot;summary&quot;)+
+  ggtitle(&quot;GDP vs. Freedom and Literacy&quot;)+
+  scale_color_gradient2(midpoint=50, low=&quot;black&quot;, mid=&quot;blue&quot;,
+                            high=&quot;green&quot;, space =&quot;Lab&quot; ) +
+  theme_classic()
+free.lit.gdp</code></pre>
+<pre><code>## No summary function supplied, defaulting to `mean_se()</code></pre>
+<p><img src="/Project1_files/figure-html/unnamed-chunk-16-1.png" width="672" /></p>
+</div>
+<div id="generating-another-scatterplot-that-shows-the-relationship-between-a-countrys-happiness-score-deathrate-and-literacy-rate.-the-gradient-colors-were-changed-as-in-the-above-plot-but-with-a-darker-theme-to-make-the-points-pop-out.-the-resulting-plot-reveals-that-the-countries-with-the-highest-happiness-score-tend-to-be-those-with-lower-deathrates-and-higher-literacy-rates.-this-makes-sense-as-we-might-expect-that-lots-of-death-and-low-levels-of-literacy-seem-to-reflect-a-low-quality-of-life.-nevertheless-based-on-the-data-in-these-datasets-we-clearly-observe-a-negative-correlation-between-happiness-score-and-deathrate-and-a-positive-correlation-between-happiness-score-and-literacy-rate." class="section level5">
+<h5><em>Generating another scatterplot that shows the relationship between a country’s Happiness Score, Deathrate, and Literacy Rate. The gradient colors were changed as in the above plot, but with a darker theme to make the points pop out. The resulting plot reveals that the countries with the highest happiness score tend to be those with lower deathrates and higher literacy rates. This makes sense, as we might expect that lots of death and low levels of literacy seem to reflect a low quality of life. Nevertheless, based on the data in these datasets, we clearly observe a negative correlation between happiness score and deathrate, and a positive correlation between happiness score and literacy rate.</em></h5>
+<pre class="r"><code>happy.death.mig &lt;- join5 %&gt;% ggplot(aes(y = Happiness.Score, x = Deathrate, color = `Literacy....`)) +
+  geom_point() +
+  ggtitle(&quot;Happiness Score vs. Deathrate and Literacy&quot;)+
+  scale_color_gradient2(midpoint=50, low=&quot;blue&quot;, mid=&quot;orange&quot;,
+                        high=&quot;green&quot;, space =&quot;Lab&quot; ) +
+  theme_dark() + 
+  scale_x_continuous(breaks = seq(0, 35, 5))
+happy.death.mig</code></pre>
+<p><img src="/Project1_files/figure-html/unnamed-chunk-17-1.png" width="672" /></p>
+</div>
+<div id="generating-a-correlation-heatmap-to-visualize-any-correlations-between-happiness-score-freedom-deathrate-gdp-literacy-rate-and-phones-per-1000-people.-the-resulting-heatmap-shows-a-high-correlation-between-gdp-and-phones-per-1000-people-which-would-be-expected-more-phones-would-be-expected-in-wealthier-countries.-deathrate-is-the-only-variable-that-negatively-correlates-with-another-variable-in-fact-it-negatively-correlates-at-least-a-little-with-every-other-variable.-it-also-appears-that-of-the-variables-examined-gdp-and-phones-per-1000-people-are-the-strongest-indicators-of-a-countrys-happiness." class="section level5">
+<h5><em>Generating a correlation heatmap to visualize any correlations between Happiness Score, Freedom, Deathrate, GDP, Literacy Rate, and Phones per 1000 people. The resulting heatmap shows a high correlation between GDP and Phones per 1000 people, which would be expected; more phones would be expected in wealthier countries. Deathrate is the only variable that negatively correlates with another variable; in fact, it negatively correlates (at least a little) with every other variable. It also appears that, of the variables examined, GDP and Phones per 1000 people are the strongest indicators of a country’s happiness.</em></h5>
+<pre class="r"><code>correlation &lt;- join5 %&gt;% select(Happiness.Score, Freedom, Deathrate, `GDP....per.capita.`, `Literacy....`, `Phones..per.1000.`) %&gt;% cor
+correlation</code></pre>
+<pre><code>##                    Happiness.Score    Freedom  Deathrate
+## Happiness.Score          1.0000000  0.5989084 -0.5112404
+## Freedom                  0.5989084  1.0000000 -0.1784570
+## Deathrate               -0.5112404 -0.1784570  1.0000000
+## GDP....per.capita.       0.7609223  0.4401218 -0.2497410
+## Literacy....             0.6406498  0.3934818 -0.3876934
+## Phones..per.1000.        0.7420514  0.3325187 -0.2887690
+##                    GDP....per.capita. Literacy.... Phones..per.1000.
+## Happiness.Score             0.7609223    0.6406498         0.7420514
+## Freedom                     0.4401218    0.3934818         0.3325187
+## Deathrate                  -0.2497410   -0.3876934        -0.2887690
+## GDP....per.capita.          1.0000000    0.5482713         0.9257549
+## Literacy....                0.5482713    1.0000000         0.6184030
+## Phones..per.1000.           0.9257549    0.6184030         1.0000000</code></pre>
+<pre class="r"><code>library(reshape2)</code></pre>
+<pre><code>## 
+## Attaching package: &#39;reshape2&#39;</code></pre>
+<pre><code>## The following object is masked from &#39;package:tidyr&#39;:
+## 
+##     smiths</code></pre>
+<pre class="r"><code>melted_correlation &lt;- melt(correlation)
+head(melted_correlation)</code></pre>
+<pre><code>##                 Var1            Var2      value
+## 1    Happiness.Score Happiness.Score  1.0000000
+## 2            Freedom Happiness.Score  0.5989084
+## 3          Deathrate Happiness.Score -0.5112404
+## 4 GDP....per.capita. Happiness.Score  0.7609223
+## 5       Literacy.... Happiness.Score  0.6406498
+## 6  Phones..per.1000. Happiness.Score  0.7420514</code></pre>
+<pre class="r"><code>heatmap &lt;- ggplot(data = melted_correlation, aes(Var2, Var1, fill = value))+
+  geom_tile(color = &quot;white&quot;)+
+  scale_fill_gradient2(low = &quot;blue&quot;, high = &quot;red&quot;, mid = &quot;white&quot;, 
+                       midpoint = 0, limit = c(-1,1), space = &quot;Lab&quot;, 
+                       name=&quot;Pearson\nCorrelation&quot;) +
+  theme_minimal()+ 
+  theme(axis.text.x = element_text(angle = 45, vjust = 1, 
+                                   size = 10, hjust = 1))+
+  ggtitle(&quot;Correlation Heatmap&quot;)
+  coord_fixed()</code></pre>
+<pre><code>## &lt;ggproto object: Class CoordFixed, CoordCartesian, Coord, gg&gt;
+##     aspect: function
+##     backtransform_range: function
+##     clip: on
+##     default: FALSE
+##     distance: function
+##     expand: TRUE
+##     is_free: function
+##     is_linear: function
+##     labels: function
+##     limits: list
+##     modify_scales: function
+##     range: function
+##     ratio: 1
+##     render_axis_h: function
+##     render_axis_v: function
+##     render_bg: function
+##     render_fg: function
+##     setup_data: function
+##     setup_layout: function
+##     setup_panel_params: function
+##     setup_params: function
+##     transform: function
+##     super:  &lt;ggproto object: Class CoordFixed, CoordCartesian, Coord, gg&gt;</code></pre>
+<pre class="r"><code>heatmap</code></pre>
+<p><img src="/Project1_files/figure-html/unnamed-chunk-18-1.png" width="672" /></p>
+</div>
+</div>
+<div id="dimensionality-reduction" class="section level3">
+<h3>Dimensionality Reduction</h3>
+<div id="after-cleaning-the-data-earlier-i-performed-a-pca-on-the-data-to-reduce-the-31-dimensions-down-to-4-principle-components.-while-this-is-slightly-more-principle-components-than-i-would-prefer-i-chose-to-use-4-principle-components-for-the-following-reasons-the-scree-plot-seems-to-flatten-after-the-4th-pc-and-pcs-1-4-all-have-eigenvalues-2.-these-criteria-made-the-first-4-pcs-seem-important-to-parsing-out-the-data-without-losing-too-much-information.-after-deciding-on-4-principle-components-i-made-my-principle-components-into-the-axes-of-two-different-plots.-i-then-made-a-biplot-to-visualize-pc-1-and-2-which-seem-to-produce-a-gradient-of-the-happiness-ranks-of-the-various-countries." class="section level5">
+<h5><em>After cleaning the data (earlier), I performed a PCA on the data to reduce the 31 dimensions down to 4 principle components. While this is slightly more principle components than I would prefer, I chose to use 4 principle components for the following reasons: the scree plot seems to flatten after the 4th PC, and PCs 1-4 all have eigenvalues &gt;2. These criteria made the first 4 PCs seem important to parsing out the data without losing too much information. After deciding on 4 principle components, I made my principle components into the axes of two different plots. I then made a biplot to visualize PC 1 and 2, which seem to produce a gradient of the happiness ranks of the various countries.</em></h5>
+<pre class="r"><code>world_nums &lt;- join5 %&gt;% select_if(is.numeric) %&gt;% scale
+rownames(world_nums) &lt;- join5$Name
+world_pca &lt;- princomp(world_nums)
+names(world_pca)</code></pre>
+<pre><code>## [1] &quot;sdev&quot;     &quot;loadings&quot; &quot;center&quot;   &quot;scale&quot;    &quot;n.obs&quot;    &quot;scores&quot;  
+## [7] &quot;call&quot;</code></pre>
+<pre class="r"><code>#summary(world_pca, loadings = T)
+
+eigval &lt;- world_pca$sdev^2
+varprop &lt;- round(eigval/sum(eigval), 2)
+
+scree &lt;- ggplot() +
+  geom_bar(aes(y=varprop, x=1:32), stat = &quot;identity&quot;) +
+  xlab(&quot;&quot;) +
+  geom_path(aes(y=varprop, x=1:32)) +
+  geom_text(aes(x=1:32, y=varprop, label = round(varprop, 2)), vjust=1, col=&quot;white&quot;, size=5) +
+  scale_y_continuous(breaks = seq(0, .4, .1), labels = scales::percent) +
+  scale_x_continuous(breaks = 1:32) +
+  ggtitle(&quot;Scree Plot of Principle Components&quot;)
+scree</code></pre>
+<p><img src="/Project1_files/figure-html/unnamed-chunk-19-1.png" width="672" /></p>
+<pre class="r"><code>#eigval
+
+PC12 &lt;- ggplot() +
+  geom_point(aes(world_pca$scores[,1], world_pca$scores[,2], color = join5$Region)) +
+  xlab(&quot;PC1&quot;) +
+  ylab(&quot;PC2&quot;) +
+  ggtitle(&quot;PC2 vs. PC1&quot;)
+PC12</code></pre>
+<p><img src="/Project1_files/figure-html/unnamed-chunk-19-2.png" width="672" /></p>
+<pre class="r"><code>PC12 &lt;- ggplot() +
+  geom_point(aes(world_pca$scores[,1], world_pca$scores[,2], color = join5$Happiness.Rank)) +
+  xlab(&quot;PC1&quot;) +
+  ylab(&quot;PC2&quot;) +
+  ggtitle(&quot;PC2 vs. PC1&quot;)
+PC12</code></pre>
+<p><img src="/Project1_files/figure-html/unnamed-chunk-19-3.png" width="672" /></p>
+<pre class="r"><code>PC34 &lt;- ggplot() +
+  geom_point(aes(world_pca$scores[,3], world_pca$scores[,4], color = join5$Happiness.Rank)) +
+  xlab(&quot;PC3&quot;) +
+  ylab(&quot;PC4&quot;) +
+  ggtitle(&quot;PC4 vs. PC3&quot;)
+PC34</code></pre>
+<p><img src="/Project1_files/figure-html/unnamed-chunk-19-4.png" width="672" /></p>
+<pre class="r"><code>#install.packages(&quot;factoextra&quot;)
+#library(factoextra)
+#biplot &lt;- fviz_pca_biplot(world_pca,col.ind = join5$Happiness.Rank,)+coord_fixed()
+#biplot
+
+# For some reason, this code is not working. It worked fine on my computer. As I cannot figure out how to view get the image into this pdf, and as time is running short, I will happily produce the biplot from my home computer or in a separate submission if you would like to see it. Hopefully you trust me though :)</code></pre>
+</div>
+<div id="summary-1" class="section level4">
+<h4>Summary</h4>
+<div id="upon-examining-the-loadings-data-for-the-individual-components-component-1-seems-to-be-a-general-wellness-of-the-nationgood-land-good-economy-good-liberties-good-technology-good-living-etc.-the-second-component-seems-to-be-more-geared-towards-interpersonal-variables-generosity-family-birthdeathrate-etc.-principle-components-3-and-4-become-less-clear-as-to-what-themes-they-represent-while-still-representing-a-fair-amount-of-the-variance-in-the-data.-when-the-plots-of-the-different-pcs-were-generated-it-quickly-became-evident-that-the-pcs-were-not-separating-based-on-region-very-well.-however-upon-generating-a-biplot-i-saw-that-the-pcs-did-a-very-good-job-of-separating-the-countries-by-happiness-rank-with-the-happiest-countries-on-the-right-side-of-the-graph-and-the-least-happy-countries-on-the-left-side-of-the-graph.-so-i-colored-the-regular-principle-component-plots-according-to-happiness-rank-and-found-that-a-high-score-on-principle-component-1-tends-to-indicate-a-greater-happiness-rank-and-vice-versa.-pc4-also-seems-to-slightly-separate-countries-based-on-rank-with-happier-countries-scoring-lower-on-pc4-and-less-happy-countries-scoring-higher-on-pc4.-however-this-component-gives-a-much-less-clear-separation-than-pc1." class="section level5">
+<h5><em>Upon examining the loadings data for the individual components, component 1 seems to be a general wellness of the nation–good land, good economy, good liberties, good technology, good living, etc. The second component seems to be more geared towards interpersonal variables: generosity, family, birth/deathrate, etc. Principle components 3 and 4 become less clear as to what themes they represent, while still representing a fair amount of the variance in the data. When the plots of the different PCs were generated, it quickly became evident that the PCs were not separating based on region very well. However, upon generating a biplot, I saw that the PCs did a very good job of separating the countries by happiness rank, with the happiest countries on the right side of the graph and the least happy countries on the left side of the graph. So, I colored the regular principle component plots according to happiness rank and found that a high score on principle component 1 tends to indicate a greater happiness rank and vice versa. PC4 also seems to slightly separate countries based on rank, with happier countries scoring lower on PC4 and less happy countries scoring higher on PC4. However, this component gives a much less clear separation than PC1.</em></h5>
+</div>
+</div>
+</div>
+
+              <hr>
+              <div class="related-posts">
+                <h5>Related Posts</h5>
+                
+              </div>
+            </div>
+          </div>
+          <hr>
+        <div class="disqus">
+  <div id="disqus_thread"></div>
+  <script type="text/javascript">
+
+    (function() {
+      
+      
+      if (window.location.hostname == "localhost")
+        return;
+
+      var disqus_shortname = '';
+      var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+      dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+      (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+    })();
+  </script>
+  <noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+  <a href="http://disqus.com/" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
+</div>
+        </div>
+      </div>
+      
+    </div>
+
+    
+    <footer>
+  <div id="footer">
+    <div class="container">
+      <p class="text-muted">&copy; All rights reserved. Powered by <a href="https://gohugo.io/">Hugo</a> and
+      <a href="http://www.github.com/nurlansu/hugo-sustain/">sustain</a> with ♥</p>
+    </div>
+  </div>
+</footer>
+<div class="footer"></div>
+
+
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
+
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
+<script src="/js/docs.min.js"></script>
+<script src="/js/main.js"></script>
+
+<script src="/js/ie10-viewport-bug-workaround.js"></script>
+
+
+    
+  </body>
+</html>

@@ -28,6 +28,16 @@
   </url>
   
   <url>
+    <loc>/project2/</loc>
+    <lastmod>2019-11-26T00:00:00+00:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>/project1/</loc>
+    <lastmod>2019-10-20T00:00:00+00:00</lastmod>
+  </url>
+  
+  <url>
     <loc>/categories/</loc>
     <lastmod>2016-10-02T22:55:05-04:00</lastmod>
   </url>
@@ -55,10 +65,6 @@
   <url>
     <loc>/project2_fd_mo/</loc>
     <priority>0</priority>
-  </url>
-  
-  <url>
-    <loc>/project2/</loc>
   </url>
   
 </urlset>

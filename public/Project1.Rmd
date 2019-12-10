@@ -1,0 +1,283 @@
+---
+title: "Project 1"
+author: "Mason Ouren"
+date: "2019-10-20"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+
+library(tidyverse)
+library(dplyr)
+library(tidyr)
+```
+
+### Introduction
+
+##### For this project, I selected two datasets that both contained data on various countries around the world. While one contained many different statistics on countries around the world collected by the US government (like population, region, area size, infant mortality, etc.), the other contained the World Happiness Report collected by the Gallup World Poll. It contains 6 key variables and the extent that they determine a country's happiness: Economy (GDP), Family, Life Expectancy, Freedom, Trust in the Government, and Generosity. Nearly every variable in these datasets is a numeric variable, which allows for many different tests for associations--particularly with what variables contribute most to world happiness across the two datasets. I was interested in these datasets because I wanted to see if the conventional expectations of what makes people "happy" are, in fact, most highly correlated with happiness on a worldwide scale. Does money necessarily mean happiness? Does technology? Mortality? These are questions I was hoping to explore, with the expectation that, generally, wealthier and more technologically advanced countries would be happier.
+
+#####*reading the datasets into the file*
+```{R}
+countries <- read.csv("C:/Users/mason/OneDrive/SDS 348 Comp Bio/countries of the world.csv")
+happiness <- read.csv("C:/Users/mason/OneDrive/SDS 348 Comp Bio/2017.csv")
+```
+
+### Tidying: Rearranging Wide/Long 
+
+##### *Datasets are tidy, so using pivot_longer() to make them untidy then pivot_wider() to make the tidy again. The number of rows doubles when I use pivot_longer() and new variables are created: one with the previous column names, and the other containing the corresponding values.*
+
+```{R}
+happiness_untidy <- happiness %>% pivot_longer(cols = c(Whisker.high, Whisker.low), names_to = "untidy")
+head(happiness_untidy)
+happiness_tidy <- happiness_untidy %>% pivot_wider(names_from = "untidy", values_from = "value")
+head(happiness_tidy)
+
+countries_untidy <- countries %>% 
+  pivot_longer(cols = c(Birthrate, Deathrate), names_to = "untidy")
+head(countries_untidy)
+
+countries_tidy <- countries_untidy %>% 
+  pivot_wider(names_from = "untidy", values_from = "value")
+# Creating an updated dataset where some of the country names are corrected to match the "happiness" dataset and cause fewer rows to have many NAs.
+countries_tidy1 <- countries_tidy %>% 
+  rename("Country1" = "Country") %>% 
+  mutate(Country = recode(Country1, "Korea, South" = "South Korea", "Trinidad & Tobago" = "Trinidad and Tobago", "Taiwan" = "Taiwan Province of China", "Hong Kong" = "Hong Kong S.A.R., China", "Congo, Repub. of the" = "Congo (Brazzaville)", "Congo, Dem. Rep." = "Congo (Kinshasa)", "Central African Rep." = "Central African Republic")) %>%
+  select(-c(Country1))
+head(countries_tidy1)
+
+```
+
+
+### Joining/Merging
+
+##### *joining the datasets with left_join(); this results in a dataset that has 155 rows and 31 variables. I chose to left_join() "countries" to "happiness" because most of the "happiness" countries had data in the "countries" dataset, but not all of the "countries" countries had data in the "happiness dataset. Joining in this way created a dataset with fewer rows containing NAs; however, an na.omit() step is still needed.*
+
+```{R}
+#join <- left_join(happiness_tidy, countries_tidy1, by = "Country")
+#head(join)
+
+join <- read.csv("C:/Users/mason/OneDrive/SDS 348 Comp Bio/join.csv")
+#I had to do this because, for some reason, joining the datasets on the server made the second dataset all NAs. This same code worked perfectly fine on my computer (not the server). So, as a workaround, I uploaded the file from my computer where all of the data is present. I hope this is alright
+
+```
+
+##### *Since the "countries" dataset used commas instead of periods for decimals, I needed to replace them with periods to make those columns numeric:*
+
+```{R}
+join1 <- apply(apply(join, 2, gsub, patt=",", replace="."), 2, as.numeric)
+#head(join1)
+
+```
+
+##### *Since this made the country names and regions turn into NAs, I'm deleting those columns from join1 using select(-c()), saving as "join2", selecting those two columns from the "join" dataset, saving as "columns", using cbind() to stick them onto the join2 dataset, making the join3 dataset. I also had to turn "join1" into a dataframe because it turned into a matrix. I now have a data frame where all of the commas are periods and all variables are correctly characterized (numeric or character).*
+```{R}
+join1 <- as.data.frame(join1)
+join2 <- join1 %>% select(-c(Country), -c(Region))
+columns <- join %>% select(Country, Region)
+join3 <- cbind(join2, columns)
+#head(join3)
+```
+
+##### *For number of rows lost in join, I am using anti_join() and nrow() to determine the number of rows in "countries_tidy1" that are not in "happiness"; I am also doing an anti_join() in the reverse order to see how many rows are in the "happiness" dataset that are not in the "countries_tidy1" dataset. 87 rows from the "countries" dataset were not in the "happiness" dataset, and were lost in the join. 8 rows in the "happiness" dataset are not in the "countries" dataset and were not lost in the join, but will be lost if na.omit() is performed. Some other rows will also be lost if na.omit is performed due to incompleteness.*
+
+```{R}
+countries_rows_lost <- anti_join(countries_tidy1, happiness)
+print(nrow(countries_rows_lost))
+happiness_rows_lost <- anti_join(happiness, countries_tidy1)
+print(nrow(happiness_rows_lost))
+
+```
+
+### Wrangling 
+
+##### *Filtering for countries with a happiness score that is greater than the mean, and storing in new dataset called "very_happy". The resulting dataset has 73 rows, with happiness scores ranging from 5.395 to 7.537.*
+```{R}
+very_happy <- join3 %>% filter(Happiness.Score, Happiness.Score > mean(Happiness.Score))
+print(max(very_happy$Happiness.Score))
+print(min(very_happy$Happiness.Score))
+
+```
+
+##### *Selecting only the columns for country, happiness rank, happiness score, birth rate, and death rate; results in a 5-column dataset saved as "happy_life_death".*
+```{R}
+happy_life_death <- join3 %>% select(Country, Happiness.Rank, Happiness.Score, Birthrate, Deathrate)
+head(happy_life_death)
+```
+
+##### *Arranging by descending amount of arable land. The observation containing the highest percentage of arable land is at the top, and the lowest is at the bottom.*
+```{R}
+lots_of_farming <- join3 %>% arrange(desc(`Arable....`))
+#head(lots_of_farming)
+```
+
+##### *Grouping by region. This will let me calculate summarizing statistics later according to region.*
+```{R}
+grouped <- join3 %>% group_by(Region)
+head(grouped)
+```
+
+##### *Adding 2 new columns using mutate(). One contains a function that calculates the Z-score of "Generosity", and the other the percent rank of "Generosity" compared to other countries.*
+```{R}
+GenerosityZ <- function(x){(x - mean(x))/sd(x)}
+join4 <- join3 %>% mutate("GenerosityZ" = GenerosityZ(Generosity), "Generosity.percent.rank" = percent_rank(Generosity))
+#head(join4)
+```
+
+##### *Summarizing every variable in the dataset using summarize_all(). I used na.omit() to remove rows that would keep a mean from being generated for a given variable.*
+```{R}
+summarized <- join4 %>% na.omit %>% summarize_all(mean)
+head(summarized)
+```
+
+##### *Correlation matrix can be found in the visualizations section, where I generated a correlation heatmap (matrix is still visible though).*
+
+##### *Removing any NA-containing rows from dataset and saving as "join5".*
+```{R}
+join5 <- join4 %>% na.omit()
+#head(join5)
+```
+
+##### *Selecting 5 variables (3 numeric) to generate summary statistics for, and then generating those summary statistics. Then I am reshaping the data to make a better-looking table. For each of the numeric variables, mean, standard deviation, variance, minimum, maximum, and number of distinct values will be calculated. The result is a 6x4 table containing each of the overall summary statistics for each of the 3 variables.*
+```{R}
+join6 <- join5 %>% select(Country, Region, Generosity, `Phones..per.1000.`, Freedom)
+head(join6)
+
+overall_summary <- join6 %>% select(-c(Country, Region)) %>% summarize(mean.generosity = mean(Generosity), sd.generosity = sd(Generosity), var.generosity = var(Generosity), min.generosity = min(Generosity), max.generosity = max(Generosity), ndistinct.generosity = n_distinct(Generosity),
+                                                                       mean.phones = mean(`Phones..per.1000.`), sd.phones = sd(`Phones..per.1000.`), var.phones = var(`Phones..per.1000.`), min.phones = min(`Phones..per.1000.`), max.phones = max(`Phones..per.1000.`), ndistinct.phones = n_distinct(`Phones..per.1000.`),
+                                                                       mean.freedom = mean(Freedom), sd.freedom = sd(Freedom), var.freedom = var(Freedom), min.freedom = min(Freedom), max.freedom = max(Freedom), ndistinct.freedom = n_distinct(Freedom)) %>%
+  pivot_longer(cols = (1:18)) %>%
+  separate(name, into = c("stat", "variable")) %>%
+  pivot_wider(names_from = "variable", values_from = "value")
+
+head(overall_summary)
+
+```
+
+##### *Now grouping those 3 numeric variables by Region, calculating the same statistics, and then reshaping to make it nice to read.*
+```{R}
+options(scipen=999) #disabling scientific notation
+
+grouped_summary <- join6 %>% select(-c(Country)) %>% group_by(Region) %>% 
+  summarize(mean.generosity = mean(Generosity), sd.generosity = sd(Generosity), var.generosity = var(Generosity), min.generosity = min(Generosity), max.generosity = max(Generosity), ndistinct.generosity = n_distinct(Generosity),
+   mean.phones = mean(`Phones..per.1000.`), sd.phones = sd(`Phones..per.1000.`), var.phones = var(`Phones..per.1000.`), min.phones = min(`Phones..per.1000.`), max.phones = max(`Phones..per.1000.`), ndistinct.phones = n_distinct(`Phones..per.1000.`),
+   mean.freedom = mean(Freedom), sd.freedom = sd(Freedom), var.freedom = var(Freedom), min.freedom = min(Freedom), max.freedom = max(Freedom), ndistinct.freedom = n_distinct(Freedom)) %>%
+  pivot_longer(cols = (2:19)) %>%
+  separate(name, into = c("stat", "variable")) %>%
+  pivot_wider(names_from = "variable", values_from = "value")
+
+head(grouped_summary)
+
+```
+#### Summary
+##### *Upon filtering for the countries that were happier than the mean happiness score, the minimum (just above the mean) was 5.395 and the maximum was 7.537 (well above the mean). When I selected for specific columns, the result was a 5-variable table with country, happiness rank, happiness score, birthrate, and deathrate. When the full set of variables was arranged according to percent of arable land, the country with the most arable land was Bangladesh, which ranked 110th in happiness (in general, it seems that the countries with the highest percent of arable land were not among the happiest). Upon grouping by region, the rows arranged nicely according to which region the country was in. I then used mutate() to add 2 new columns: the percent rank of a country's generosity compared to the rest, and the Z-score (function handwritten) of a country's generosity. After this, I summarized all of the variables to find the mean. Interestingly, the mean number of phones per 1000 people across countries is 194--which seems like a lot! When I generated various summary statistics for 3 different numeric variables, nothing of significance seemed to pop out--aside from the massive number of phones per 1000 people (898!) as the maximum value for a country. In the grouped summary where statistics were taken according to region, Western Europe and Oceania seem to have the highest stats while C.W. OF IND. STATES seems to have some of the lowest (which agrees with their happiness rankings).*
+
+
+### Visualizing 
+
+##### *Generating a scatterplot that shows the relationship between Freedom, GDP, and Literacy Rate. The color gradient of the points was altered to be more easily visible, and the theme was changed to remove the background grid lines. The resulting plot is interesting. It suggests that a country's GDP is not necessarily strongly predicted by its level of freedom, as one (especially in America) might expect; rather, literacy rate seems to have much more to do with a country's GDP. In fact, some of the countries with the lowest freedom scores still have GDPs that are well above most other countries.*
+```{R}
+free.lit.gdp <- join5 %>% ggplot(aes(x = Freedom, y = `GDP....per.capita.`, color = `Literacy....`)) +
+  geom_point(stat="summary")+
+  ggtitle("GDP vs. Freedom and Literacy")+
+  scale_color_gradient2(midpoint=50, low="black", mid="blue",
+                            high="green", space ="Lab" ) +
+  theme_classic()
+free.lit.gdp
+
+```
+
+##### *Generating another scatterplot that shows the relationship between a country's Happiness Score, Deathrate, and Literacy Rate. The gradient colors were changed as in the above plot, but with a darker theme to make the points pop out. The resulting plot reveals that the countries with the highest happiness score tend to be those with lower deathrates and higher literacy rates. This makes sense, as we might expect that lots of death and low levels of literacy seem to reflect a low quality of life. Nevertheless, based on the data in these datasets, we clearly observe a negative correlation between happiness score and deathrate, and a positive correlation between happiness score and literacy rate.*
+```{R}
+happy.death.mig <- join5 %>% ggplot(aes(y = Happiness.Score, x = Deathrate, color = `Literacy....`)) +
+  geom_point() +
+  ggtitle("Happiness Score vs. Deathrate and Literacy")+
+  scale_color_gradient2(midpoint=50, low="blue", mid="orange",
+                        high="green", space ="Lab" ) +
+  theme_dark() + 
+  scale_x_continuous(breaks = seq(0, 35, 5))
+happy.death.mig
+
+```
+
+##### *Generating a correlation heatmap to visualize any correlations between Happiness Score, Freedom, Deathrate, GDP, Literacy Rate, and Phones per 1000 people. The resulting heatmap shows a high correlation between GDP and Phones per 1000 people, which would be expected; more phones would be expected in wealthier countries. Deathrate is the only variable that negatively correlates with another variable; in fact, it negatively correlates (at least a little) with every other variable. It also appears that, of the variables examined, GDP and Phones per 1000 people are the strongest indicators of a country's happiness.*
+```{R}
+correlation <- join5 %>% select(Happiness.Score, Freedom, Deathrate, `GDP....per.capita.`, `Literacy....`, `Phones..per.1000.`) %>% cor
+correlation
+library(reshape2)
+
+melted_correlation <- melt(correlation)
+head(melted_correlation)
+
+heatmap <- ggplot(data = melted_correlation, aes(Var2, Var1, fill = value))+
+  geom_tile(color = "white")+
+  scale_fill_gradient2(low = "blue", high = "red", mid = "white", 
+                       midpoint = 0, limit = c(-1,1), space = "Lab", 
+                       name="Pearson\nCorrelation") +
+  theme_minimal()+ 
+  theme(axis.text.x = element_text(angle = 45, vjust = 1, 
+                                   size = 10, hjust = 1))+
+  ggtitle("Correlation Heatmap")
+  coord_fixed()
+heatmap
+
+```
+
+### Dimensionality Reduction 
+
+##### *After cleaning the data (earlier), I performed a PCA on the data to reduce the 31 dimensions down to 4 principle components. While this is slightly more principle components than I would prefer, I chose to use 4 principle components for the following reasons: the scree plot seems to flatten after the 4th PC, and PCs 1-4 all have eigenvalues >2. These criteria made the first 4 PCs seem important to parsing out the data without losing too much information. After deciding on 4 principle components, I made my principle components into the axes of two different plots. I then made a biplot to visualize PC 1 and 2, which seem to produce a gradient of the happiness ranks of the various countries.*
+```{R}
+world_nums <- join5 %>% select_if(is.numeric) %>% scale
+rownames(world_nums) <- join5$Name
+world_pca <- princomp(world_nums)
+names(world_pca)
+
+#summary(world_pca, loadings = T)
+
+eigval <- world_pca$sdev^2
+varprop <- round(eigval/sum(eigval), 2)
+
+scree <- ggplot() +
+  geom_bar(aes(y=varprop, x=1:32), stat = "identity") +
+  xlab("") +
+  geom_path(aes(y=varprop, x=1:32)) +
+  geom_text(aes(x=1:32, y=varprop, label = round(varprop, 2)), vjust=1, col="white", size=5) +
+  scale_y_continuous(breaks = seq(0, .4, .1), labels = scales::percent) +
+  scale_x_continuous(breaks = 1:32) +
+  ggtitle("Scree Plot of Principle Components")
+scree
+
+#eigval
+
+PC12 <- ggplot() +
+  geom_point(aes(world_pca$scores[,1], world_pca$scores[,2], color = join5$Region)) +
+  xlab("PC1") +
+  ylab("PC2") +
+  ggtitle("PC2 vs. PC1")
+PC12
+
+PC12 <- ggplot() +
+  geom_point(aes(world_pca$scores[,1], world_pca$scores[,2], color = join5$Happiness.Rank)) +
+  xlab("PC1") +
+  ylab("PC2") +
+  ggtitle("PC2 vs. PC1")
+PC12
+
+PC34 <- ggplot() +
+  geom_point(aes(world_pca$scores[,3], world_pca$scores[,4], color = join5$Happiness.Rank)) +
+  xlab("PC3") +
+  ylab("PC4") +
+  ggtitle("PC4 vs. PC3")
+PC34
+
+#install.packages("factoextra")
+#library(factoextra)
+#biplot <- fviz_pca_biplot(world_pca,col.ind = join5$Happiness.Rank,)+coord_fixed()
+#biplot
+
+# For some reason, this code is not working. It worked fine on my computer. As I cannot figure out how to view get the image into this pdf, and as time is running short, I will happily produce the biplot from my home computer or in a separate submission if you would like to see it. Hopefully you trust me though :)
+
+```
+#### Summary
+##### *Upon examining the loadings data for the individual components, component 1 seems to be a general wellness of the nation--good land, good economy, good liberties, good technology, good living, etc. The second component seems to be more geared towards interpersonal variables: generosity, family, birth/deathrate, etc. Principle components 3 and 4 become less clear as to what themes they represent, while still representing a fair amount of the variance in the data. When the plots of the different PCs were generated, it quickly became evident that the PCs were not separating based on region very well. However, upon generating a biplot, I saw that the PCs did a very good job of separating the countries by happiness rank, with the happiest countries on the right side of the graph and the least happy countries on the left side of the graph. So, I colored the regular principle component plots according to happiness rank and found that a high score on principle component 1 tends to indicate a greater happiness rank and vice versa. PC4 also seems to slightly separate countries based on rank, with happier countries scoring lower on PC4 and less happy countries scoring higher on PC4. However, this component gives a much less clear separation than PC1.*
+
