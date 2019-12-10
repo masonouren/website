@@ -22,7 +22,7 @@ theme = "hugo-sustain"
 [params.social]
   Github        = "masonouren"
   Email         = "masonouren@gmail.com"
-  LinkedIn      = "mason-ouren"
+  LinkedIn      = "mason-ouren-904a27195"
 
 ## Main Menu
 [[menu.main]]
@@ -39,4 +39,4 @@ theme = "hugo-sustain"
   name = "resume"
   identifier = "resume"
   weight = 300
-  url = "/Resume_Mason Ouren_2019-11-05.pdf"
+  url = "/Resume.pdf"
