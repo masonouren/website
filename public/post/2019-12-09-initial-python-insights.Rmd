@@ -1,0 +1,11 @@
+---
+title: Initial Python Insights
+author: Mason Ouren
+date: '2019-12-09'
+slug: initial-python-insights
+categories: []
+tags: []
+description: ''
+---
+### **Introduction**
+hi :)

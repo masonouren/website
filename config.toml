@@ -11,22 +11,18 @@ theme = "hugo-sustain"
   post = "/:year/:month/:day/:slug"
 
 [params]
-  avatar = "profile.png"
+  avatar = "Ouren, Mason (2).jpg"
   author = "Mason Ouren"
-  description = "Describe your website"
+  description = "This is my website"
 
   # Custom assets can be linked with their paths relative to static/
   custom_css = []
   custom_js  = []
 
 [params.social]
-  Github        = "username"
-  Email         = "email@example.com"
-  Twitter       = "username"
-  LinkedIn      = "username"
-  Stackoverflow = "username"
-  Medium        = "username"
-  Telegram      = "username"
+  Github        = "masonouren"
+  Email         = "masonouren@gmail.com"
+  LinkedIn      = "mason-ouren"
 
 ## Main Menu
 [[menu.main]]

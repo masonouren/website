@@ -1,0 +1,509 @@
+
+
+<div id="project-2-modeling" class="section level1">
+<h1><em>Project 2: Modeling</em></h1>
+<div id="for-this-project-i-selected-a-dataset-containing-information-about-dementia-patients.-the-variables-in-this-dataset-include-patient-identification-dementia-status-binary-either-demented-or-nondemented-gender-mf-age-years-of-education-educ-socioeconomic-status-ses-score-from-a-minimal-mental-state-exam-mmse-estimated-total-intracranial-volume-etiv-normalized-whole-brain-volume-nwbv-and-the-atlas-scaling-factor-asf-this-was-not-used-much-in-the-practical-analysis.-the-variable-referring-to-the-patients-visits-and-the-hand-variable-were-not-informative-the-same-for-every-patient-after-tidying.-some-variables-while-coded-numerically-are-more-categorical-in-nature-like-ses-some-are-purely-categorical-like-gender-and-dementia-status-and-some-are-purely-numeric-like-normalized-whole-brain-volume-and-estimated-total-intracranial-volume.-i-chose-this-dataset-because-my-grandmother-passed-away-from-dementia-and-i-was-curious-to-see-if-i-could-create-a-model-that-effectively-predicts-dementia-status-and-if-so-identify-which-variables-are-the-most-predictive-of-dementia.-intuitively-it-would-seem-that-age-would-be-the-most-weighty-factor-in-the-presence-of-dementia-but-i-discovered-that-other-variables-actually-carry-more-predictive-weightsee-the-rest-of-the-project-to-find-out-which-ones" class="section level5">
+<h5><em>For this project, I selected a dataset containing information about dementia patients. The variables in this dataset include patient identification, dementia status (binary; either demented or nondemented), gender (M/F), age, years of education (EDUC), socioeconomic status (SES), score from a minimal mental state exam (MMSE), estimated total intracranial volume (eTIV), normalized whole brain volume (nWBV), and the Atlas scaling factor (ASF) (this was not used much in the practical analysis). The variable referring to the patients’ visits and the “Hand” variable were not informative (the same for every patient after tidying). Some variables, while coded numerically, are more categorical in nature (like SES), some are purely categorical (like gender and dementia status), and some are purely numeric (like normalized whole brain volume and estimated total intracranial volume). I chose this dataset because my grandmother passed away from dementia, and I was curious to see if I could create a model that effectively predicts dementia status and, if so, identify which variables are the most predictive of dementia. Intuitively, it would seem that age would be the most weighty factor in the presence of dementia, but I discovered that other variables actually carry more predictive weight–see the rest of the project to find out which ones!</em></h5>
+</div>
+<div id="reading-in-the-dementia-dataset-and-tidying-it-up-by-removing-repetitive-rows-removing-a-column-that-has-only-zeros-making-dementednondemented-binary-numeric-and-removing-the-column-containing-the-dementednondemented-diagnosis-this-is-now-encoded-by-0-for-nondemented-and-1-for-demented-in-the-column-labeled-demented." class="section level5">
+<h5><em>Reading in the dementia dataset and tidying it up by removing repetitive rows, removing a column that has only zeros, making demented/nondemented binary numeric, and removing the column containing the demented/nondemented diagnosis (this is now encoded by 0 for “nondemented” and 1 for “demented” in the column labeled “Demented”).</em></h5>
+<pre class="r"><code>#Loading in some packages into the environment
+library(tidyverse); library(dplyr)
+
+#reading in the data table as a .csv
+dementia_untidy &lt;- read.csv(&quot;C:/Users/mason/OneDrive/SDS 348 Comp Bio/Dementia_Table.csv&quot;)
+
+dementia &lt;- dementia_untidy %&gt;% filter(Visit == 1) %&gt;% select(-MR.Delay) %&gt;% mutate(Demented = recode(Group, &quot;Nondemented&quot; = 0, &quot;Demented&quot; = 1)) %&gt;% select(-Group) %&gt;% na.omit()</code></pre>
+</div>
+<div id="tidying-the-data-table-to-make-it-easier-to-work-with-eliminated-repetitive-rows-deleted-non-informative-column-created-binary-variable-for-dementednondemented-patients-and-omitted-nas" class="section level5">
+<h5><em>Tidying the data table to make it easier to work with; eliminated repetitive rows, deleted non-informative column, created binary variable for demented/nondemented patients, and omitted NAs</em></h5>
+</div>
+<div id="manova" class="section level3">
+<h3><em>MANOVA</em></h3>
+<pre class="r"><code>#MANOVA
+man1&lt;-manova(cbind(EDUC,nWBV)~Demented, data=dementia)
+summary(man1)</code></pre>
+<pre><code>##            Df  Pillai approx F num Df den Df    Pr(&gt;F)    
+## Demented    1 0.13072   9.3987      2    125 0.0001576 ***
+## Residuals 126                                             
+## ---
+## Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1</code></pre>
+<div id="the-manova-is-showing-significant-values-for-both-variables-years-of-education-and-normalized-whole-brain-volume-meaning-we-will-perform-univariate-anovas-to-further-examine-the-variance-across-these-variables.-other-variables-were-omitted-for-the-following-reasons-mmse-and-cdr-are-dementia-predictions-that-are-not-really-measurements-and-therefore-produce-non-informative-variance-results-estimated-total-intracranial-volume-is-not-helpful-to-include-since-normalized-whole-brain-volume-is-a-better-metric-to-use-since-its-normalized-the-other-variables-are-categorical." class="section level5">
+<h5><em>The MANOVA is showing significant values for both variables (years of education and normalized whole brain volume), meaning we will perform univariate ANOVAs to further examine the variance across these variables. Other variables were omitted for the following reasons: MMSE and CDR are dementia predictions that are not really measurements and therefore produce non-informative variance results; estimated total intracranial volume is not helpful to include since normalized whole brain volume is a better metric to use (since it’s normalized); the other variables are categorical.</em></h5>
+<pre class="r"><code>#Univariate ANOVAs
+summary.aov(man1)</code></pre>
+<pre><code>##  Response EDUC :
+##              Df  Sum Sq Mean Sq F value  Pr(&gt;F)  
+## Demented      1   54.02  54.018  6.5517 0.01166 *
+## Residuals   126 1038.86   8.245                  
+## ---
+## Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1
+## 
+##  Response nWBV :
+##              Df  Sum Sq   Mean Sq F value    Pr(&gt;F)    
+## Demented      1 0.01615 0.0161500   12.38 0.0006043 ***
+## Residuals   126 0.16437 0.0013045                      
+## ---
+## Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1</code></pre>
+</div>
+<div id="the-univariate-anovas-show-significant-variance-across-both-variables.-since-the-demented-response-variable-is-binary-no-t-tests-are-necessary-we-know-that-any-significance-in-variance-must-be-between-these-two-groups." class="section level5">
+<h5><em>The univariate ANOVAs show significant variance across both variables. Since the “Demented” response variable is binary, no t-tests are necessary (we know that any significance in variance must be between these two groups).</em></h5>
+<pre class="r"><code>#1 MANOVA and 2 ANOVAs (3 tests total), so:
+
+#Likelihood of Type 1 Error:
+type1error &lt;- 0.05*3
+type1error</code></pre>
+<pre><code>## [1] 0.15</code></pre>
+</div>
+<div id="the-likelihood-of-a-type-1-error-is-15." class="section level5">
+<h5><em>The likelihood of a type 1 error is 15%.</em></h5>
+<pre class="r"><code>#Bonferroni correction: alpha needs to be divided by 3
+bonferroni &lt;- 0.05/3
+bonferroni #Adjusted alpha</code></pre>
+<pre><code>## [1] 0.01666667</code></pre>
+</div>
+<div id="the-bonferroni-correction-creates-an-alpha-of-0.01666667.-variance-of-both-variables-remains-significant-even-after-the-correction." class="section level5">
+<h5><em>The bonferroni correction creates an alpha of 0.01666667. Variance of both variables remains significant even after the correction.</em></h5>
+<pre class="r"><code>#For normality assumption: plot variables to observe normality
+ggplot(dementia, aes(x = nWBV, y = EDUC)) +  geom_point(alpha = .5) + facet_wrap(~Demented) + ggtitle(&quot;Distribution of EDUC by nWBV in Demented and Nondemented Individuals&quot;)</code></pre>
+<p><img src="Project2_FD_MO_files/figure-html/unnamed-chunk-6-1.png" width="672" /></p>
+</div>
+<div id="since-years-of-education-is-a-discrete-number-the-graph-forms-lines-instead-of-circles-when-trying-to-mimic-the-example-from-the-iris-dataset-so-i-removed-the-lines.-multivariate-normality-looks-decent-enough." class="section level5">
+<h5><em>Since years of education is a discrete number, the graph forms lines (instead of circles) when trying to mimic the example from the iris dataset, so I removed the lines. Multivariate normality looks decent enough.</em></h5>
+<pre class="r"><code>#For homogeneity of variance assumption: make covariance matrices
+covmats&lt;-dementia %&gt;% select(&quot;Demented&quot;, &quot;EDUC&quot;, &quot;nWBV&quot;) %&gt;% group_by(Demented) %&gt;% do(covs=cov(.[2:3])) 
+for(i in 1:2){print(covmats$covs[i])}</code></pre>
+<pre><code>## [[1]]
+##              EDUC         nWBV
+## EDUC  7.464788732 -0.008049296
+## nWBV -0.008049296  0.001491604
+## 
+## [[1]]
+##            EDUC        nWBV
+## EDUC 9.25194805 0.010179221
+## nWBV 0.01017922 0.001063018</code></pre>
+</div>
+<div id="the-manova-assumes-equal-variancescovariances-across-all-variables-but-these-tables-show-that-this-assumption-is-not-met.-as-for-other-requirements-for-the-manova-there-are-more-samples-than-variables-and-there-are-not-many-zeros-or-outliers." class="section level5">
+<h5><em>The MANOVA assumes equal variances/covariances across all variables, but these tables show that this assumption is not met. As for other requirements for the MANOVA, there are more samples than variables and there are not many zeros or outliers.</em></h5>
+</div>
+</div>
+<div id="ranodmization-test-permanova" class="section level2">
+<h2><em>Ranodmization Test: PERMANOVA</em></h2>
+<div id="next-i-perform-a-permanova-as-a-randomization-test-to-re-examine-the-manova-results-while-circumventing-some-of-the-hard-to-meet-assumptions" class="section level5">
+<h5><em>Next, I perform a PERMANOVA as a randomization test to re-examine the MANOVA results while circumventing some of the hard-to-meet assumptions:</em></h5>
+<pre class="r"><code>#RANDOMIZATION TEST (PERMANOVA)
+#install.packages(&quot;vegan&quot;)
+library(vegan)
+
+dists&lt;-dementia%&gt;%select(EDUC, nWBV)%&gt;%dist() #generating vector of distances</code></pre>
+</div>
+<div id="null-hypothesis-there-is-no-significant-mean-difference-across-any-of-the-variables-education-and-normalized-whole-brain-volume." class="section level5">
+<h5><em>Null Hypothesis: There is no significant mean difference across any of the variables (education and normalized whole brain volume).</em></h5>
+</div>
+<div id="alternative-hypotheis-there-is-a-significant-mean-difference-across-at-least-one-of-the-variables-education-and-normalized-whole-brain-volume." class="section level5">
+<h5><em>Alternative Hypotheis: There is a significant mean difference across at least one of the variables (education and normalized whole brain volume).</em></h5>
+<pre class="r"><code>#compute observed F
+SST&lt;- sum(dists^2)/150
+SSW&lt;-dementia%&gt;%group_by(Demented)%&gt;%select(EDUC,nWBV)%&gt;%
+ do(d=dist(.[1:2],&quot;euclidean&quot;))%&gt;%ungroup()%&gt;%
+ summarize(sum(d[[1]]^2)/50 + sum(d[[2]]^2)/50)%&gt;%pull
+F_obs&lt;-((SST-SSW)/2)/(SSW/147) 
+F_obs #observed F statistic</code></pre>
+<pre><code>## [1] -22.07444</code></pre>
+<pre class="r"><code>#create null distribution
+
+Fs&lt;-replicate(1000,{
+new&lt;-dementia%&gt;%mutate(Demented=sample(as.factor(Demented))) #permute the Demented vector
+SSW&lt;-new%&gt;%group_by(Demented)%&gt;%select(EDUC,nWBV)%&gt;%
+ do(d=dist(.[1:2],&quot;euclidean&quot;))%&gt;%ungroup()%&gt;%
+ summarize(sum(d[[1]]^2)/50 + sum(d[[2]]^2)/50)%&gt;%pull
+((SST-SSW)/2)/(SSW/147) #calculate new F on randomized data
+})</code></pre>
+<pre class="r"><code>#Histogram of null distribution
+{hist(Fs,prob = T); abline(v=F_obs, col=&quot;red&quot;, add=T)}</code></pre>
+<p><img src="Project2_FD_MO_files/figure-html/unnamed-chunk-11-1.png" width="672" /></p>
+<pre class="r"><code>#Is it significantly different than an expected F value?
+mean(Fs&gt;F_obs) #0.007</code></pre>
+<pre><code>## [1] 0.01</code></pre>
+</div>
+<div id="results-reject-the-null-there-is-a-significant-mean-difference-across-at-least-one-of-the-variables-education-or-normalized-whole-brain-volume-p-0.007." class="section level5">
+<h5><em>Results: Reject the null, there is a significant mean difference across at least one of the variables (education or normalized whole brain volume) (p = 0.007).</em></h5>
+</div>
+</div>
+<div id="multiple-regression" class="section level2">
+<h2><em>Multiple Regression</em></h2>
+<pre class="r"><code>#MULTIPLE REGRESSION
+dementia2 &lt;- dementia %&gt;% mutate(EDUC_center = EDUC - mean(EDUC), Age_center = Age - mean(Age), nWBV_center = nWBV - mean(nWBV), Demented = as.factor(Demented)) #centering variables
+
+fit&lt;-lm(nWBV_center ~ Age_center * Demented, data=dementia2) #Creating fit for multiple regression
+
+summary(fit) #Regression output</code></pre>
+<pre><code>## 
+## Call:
+## lm(formula = nWBV_center ~ Age_center * Demented, data = dementia2)
+## 
+## Residuals:
+##       Min        1Q    Median        3Q       Max 
+## -0.072625 -0.019105  0.000096  0.022746  0.065615 
+## 
+## Coefficients:
+##                        Estimate Std. Error t value Pr(&gt;|t|)    
+## (Intercept)           0.0104105  0.0034674   3.002  0.00324 ** 
+## Age_center           -0.0029189  0.0004241  -6.883 2.58e-10 ***
+## Demented1            -0.0236807  0.0052431  -4.517 1.44e-05 ***
+## Age_center:Demented1  0.0005165  0.0007003   0.738  0.46218    
+## ---
+## Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1
+## 
+## Residual standard error: 0.02942 on 124 degrees of freedom
+## Multiple R-squared:  0.4056, Adjusted R-squared:  0.3913 
+## F-statistic: 28.21 on 3 and 124 DF,  p-value: 5.644e-14</code></pre>
+<div id="in-an-individual-of-average-age-without-dementia-centered-normalized-whole-brain-volume-is-0.0104105-units.-for-individuals-without-dementia-centered-normalized-whole-brain-volume-decreases-by-0.0029189-units-for-every-1-unit-increase-age-centered.-for-individuals-of-average-age-with-dementia-centered-normalized-whole-brain-volume-decreases-by-0.0236807-for-every-1-unit-increase-in-dementia-since-the-demented-variable-only-has-2-levels-this-means-that-the-presence-of-dementia-corresponds-to-a-centered-normalized-brain-volume-that-is-0.0236807-units-lower-than-it-would-be-if-the-individual-did-not-have-dementia.-for-individuals-of-average-age-without-dementia-centered-normalized-whole-brain-volume-increases-by-0.0005165-units-for-every-1-unit-increase-in-the-interaction-between-age-and-dementia-status." class="section level5">
+<h5><em>In an individual of average age without dementia, centered normalized whole brain volume is 0.0104105 units. For individuals without dementia, centered normalized whole brain volume decreases by 0.0029189 units for every 1 unit increase age (centered). For individuals of average age with dementia, centered normalized whole brain volume decreases by 0.0236807 for every 1 unit increase in dementia (since the “Demented” variable only has 2 levels, this means that the presence of dementia corresponds to a centered normalized brain volume that is 0.0236807 units lower than it would be if the individual did not have dementia). For individuals of average age without dementia, centered normalized whole brain volume increases by 0.0005165 units for every 1 unit increase in the interaction between age and dementia status.</em></h5>
+<pre class="r"><code>#REGRESSION PLOT
+ggplot(dementia2, aes(x=Age_center, y=nWBV_center, group=Demented))+ geom_point(aes(color=Demented))+
+ geom_smooth(method=&quot;lm&quot;,se=F,fullrange=T,aes(color=Demented))+
+theme(legend.position=c(.9,.75))+xlab(&quot;Age (centered)&quot;) + ylab(&quot;Normalized Whole Brain Volume (centered)&quot;) +
+  ggtitle(&quot;Prevelance of Dementia based on Age and Whole Brain Volume&quot;)</code></pre>
+<p><img src="Project2_FD_MO_files/figure-html/unnamed-chunk-14-1.png" width="672" /></p>
+</div>
+<div id="the-regression-plot-shows-that-normalized-whole-brain-volume-clearly-decreases-with-age-and-is-lower-in-demented-individuals-than-nondemented-individuals." class="section level5">
+<h5><em>The regression plot shows that normalized whole brain volume clearly decreases with age, and is lower in demented individuals than nondemented individuals.</em></h5>
+<pre class="r"><code>#LINEARITY AND HOMOSKEDASTICITY ASSUMPTIONS
+library(sandwich); library(lmtest) #loading some libraries
+
+resids&lt;-fit$residuals
+fitvals&lt;-fit$fitted.values
+ggplot()+geom_point(aes(fitvals,resids))+geom_hline(yintercept=0, color=&#39;red&#39;) +
+  ggtitle(&quot;Linearity and Homoskedasticity Examination&quot;)</code></pre>
+<p><img src="Project2_FD_MO_files/figure-html/unnamed-chunk-15-1.png" width="672" /></p>
+<pre class="r"><code>bptest(fit) #testing heteroskedasticity assumption</code></pre>
+<pre><code>## 
+##  studentized Breusch-Pagan test
+## 
+## data:  fit
+## BP = 1.2102, df = 3, p-value = 0.7506</code></pre>
+</div>
+<div id="null-hypothesis-of-the-breusch-pagan-test-is-that-the-distribution-is-homoskedastic-fail-to-reject-so-distribution-is-homoskedastic.-graphical-distribution-looks-decent-enough." class="section level5">
+<h5><em>Null hypothesis of the Breusch-Pagan test is that the distribution is homoskedastic; fail to reject, so distribution is homoskedastic. Graphical distribution looks decent enough.</em></h5>
+<pre class="r"><code>#NORMALITY ASSUMPTION
+shapiro.test(resids) #Shapiro-Wilk normality test</code></pre>
+<pre><code>## 
+##  Shapiro-Wilk normality test
+## 
+## data:  resids
+## W = 0.99321, p-value = 0.7975</code></pre>
+</div>
+<div id="null-hypothesis-distribution-is-normal-fail-to-reject-so-distribution-is-normal." class="section level5">
+<h5><em>Null hypothesis: distribution is normal; fail to reject, so distribution is normal.</em></h5>
+<pre class="r"><code>#Robust SEs
+#install.packages(&quot;lmtest&quot;)
+#install.packages(&quot;sandwich&quot;)
+library(lmtest); library(sandwich) #need these packages</code></pre>
+<pre class="r"><code>#results with robust SEs:
+coeftest(fit, vcov = vcovHC(fit))</code></pre>
+<pre><code>## 
+## t test of coefficients:
+## 
+##                         Estimate  Std. Error t value  Pr(&gt;|t|)    
+## (Intercept)           0.01041047  0.00363754  2.8620  0.004944 ** 
+## Age_center           -0.00291893  0.00042445 -6.8769 2.665e-10 ***
+## Demented1            -0.02368065  0.00525207 -4.5088 1.490e-05 ***
+## Age_center:Demented1  0.00051651  0.00066166  0.7806  0.436511    
+## ---
+## Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1</code></pre>
+</div>
+<div id="results-age-and-status-of-dementia-both-remained-significant-predictors-of-whole-brain-volume-while-the-interaction-remained-not-significant.-the-significance-of-these-variables-and-the-interaction-did-not-change-before-and-after-using-robust-standard-errors.-the-robust-standard-errors-are-almost-exactly-the-same-as-in-the-original-regression." class="section level5">
+<h5><em>Results: Age and status of dementia both remained significant predictors of whole brain volume, while the interaction remained not significant. The significance of these variables and the interaction did not change before and after using robust standard errors. The robust standard errors are almost exactly the same as in the original regression.</em></h5>
+<pre class="r"><code>#re-examining output of fit model to get the adjusted R squared
+summary(fit)</code></pre>
+<pre><code>## 
+## Call:
+## lm(formula = nWBV_center ~ Age_center * Demented, data = dementia2)
+## 
+## Residuals:
+##       Min        1Q    Median        3Q       Max 
+## -0.072625 -0.019105  0.000096  0.022746  0.065615 
+## 
+## Coefficients:
+##                        Estimate Std. Error t value Pr(&gt;|t|)    
+## (Intercept)           0.0104105  0.0034674   3.002  0.00324 ** 
+## Age_center           -0.0029189  0.0004241  -6.883 2.58e-10 ***
+## Demented1            -0.0236807  0.0052431  -4.517 1.44e-05 ***
+## Age_center:Demented1  0.0005165  0.0007003   0.738  0.46218    
+## ---
+## Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1
+## 
+## Residual standard error: 0.02942 on 124 degrees of freedom
+## Multiple R-squared:  0.4056, Adjusted R-squared:  0.3913 
+## F-statistic: 28.21 on 3 and 124 DF,  p-value: 5.644e-14</code></pre>
+</div>
+<div id="the-adjusted-r-squared-value-for-the-model-is-0.3913-indicating-that-the-model-explains-39.13-of-the-variance-in-whole-brain-volume." class="section level5">
+<h5><em>The adjusted R squared value for the model is 0.3913, indicating that the model explains 39.13% of the variance in whole brain volume.</em></h5>
+<pre class="r"><code>#COMPARISON BETWEEN MODELS
+fit1&lt;-lm(nWBV_center ~ Age_center + Demented, data=dementia2)
+anova(fit,fit1,test=&quot;LRT&quot;)</code></pre>
+<pre><code>## Analysis of Variance Table
+## 
+## Model 1: nWBV_center ~ Age_center * Demented
+## Model 2: nWBV_center ~ Age_center + Demented
+##   Res.Df     RSS Df   Sum of Sq Pr(&gt;Chi)
+## 1    124 0.10730                        
+## 2    125 0.10776 -1 -0.00047071   0.4608</code></pre>
+</div>
+<div id="null-hypothesis-is-that-the-simpler-model-is-better-fail-to-reject-so-the-model-containing-only-main-effects-is-the-best-in-this-case." class="section level5">
+<h5><em>Null hypothesis is that the simpler model is better; fail to reject, so the model containing only main effects is the best in this case.</em></h5>
+<pre class="r"><code>#BOOTSTRAPPED SEs
+
+#Sample rows from dataset with replacement
+boot_dat&lt;-dementia2[sample(nrow(dementia2),replace=TRUE),]</code></pre>
+<pre class="r"><code># repeat 5000 times, saving the coefficients each time 
+samp_distn&lt;-replicate(5000, {  
+  boot_dat&lt;-dementia2[sample(nrow(dementia2),replace=TRUE),]
+  fit&lt;-lm(nWBV_center ~ Age_center * Demented, data=boot_dat)   
+  coef(fit) 
+  })</code></pre>
+<pre class="r"><code>#Estimated SEs
+samp_distn%&gt;%t%&gt;%as.data.frame%&gt;%summarize_all(sd)</code></pre>
+<pre><code>##   (Intercept)   Age_center  Demented1 Age_center:Demented1
+## 1 0.003589242 0.0004196101 0.00517042         0.0006645751</code></pre>
+</div>
+<div id="the-boostrapped-ses-are-almost-identical-to-the-robust-and-original-ses-in-fact-some-are-slightly-lower-than-the-robust-ses-and-the-original-ses-but-only-very-slightly-again-they-are-virtually-all-the-same-small-values.-the-ses-for-the-original-regression-robust-ses-and-boostrapped-ses-respectively-are-as-follows-intercept-0.0034674-0.00363754-0.003526455-age_center-0.0004241-0.00042445-0.0004217431-dementia-status-0.0052431-0.00525207-0.005134726-interaction-between-age-and-dementia-status-0.0007003-0.00066166-0.0006728562.-in-cases-where-the-se-increased-between-the-originalrobustbootstrapped-ses-the-p-value-increased-and-the-t-value-decreased.-in-cases-where-se-decreased-between-the-originalrobustboostrapped-ses-the-p-value-decreased-and-the-t-value-increased.-since-the-changes-in-ses-were-so-small-between-these-adjustments-the-significance-of-the-variablesinteraction-did-not-change." class="section level5">
+<h5><em>The boostrapped SEs are almost identical to the robust and original SEs; in fact, some are slightly lower than the robust SEs and the original SEs (but only VERY slightly; again, they are virtually all the same small values). The SEs for the original regression, robust SEs, and boostrapped SEs (respectively) are as follows: Intercept: 0.0034674, 0.00363754, 0.003526455; Age_center: 0.0004241, 0.00042445, 0.0004217431; Dementia status: 0.0052431, 0.00525207, 0.005134726; Interaction between age and dementia status: 0.0007003, 0.00066166, 0.0006728562. In cases where the SE increased between the original/robust/bootstrapped SEs, the p value increased and the t value decreased. In cases where SE decreased between the original/robust/boostrapped SEs, the p value decreased and the t value increased. Since the changes in SEs were so small between these adjustments, the significance of the variables/interaction did not change.</em></h5>
+</div>
+</div>
+<div id="logistic-regression" class="section level2">
+<h2><em>Logistic Regression</em></h2>
+<pre class="r"><code>#class_diag code
+class_diag&lt;-function(probs,truth){
+  
+  tab&lt;-table(factor(probs&gt;.5,levels=c(&quot;FALSE&quot;,&quot;TRUE&quot;)),truth)
+  acc=sum(diag(tab))/sum(tab)
+  sens=tab[2,2]/colSums(tab)[2]
+  spec=tab[1,1]/colSums(tab)[1]
+  ppv=tab[2,2]/rowSums(tab)[2]
+
+  if(is.numeric(truth)==FALSE &amp; is.logical(truth)==FALSE) truth&lt;-as.numeric(truth)-1
+  
+  #CALCULATE EXACT AUC
+  ord&lt;-order(probs, decreasing=TRUE)
+  probs &lt;- probs[ord]; truth &lt;- truth[ord]
+  
+  TPR=cumsum(truth)/max(1,sum(truth)) 
+  FPR=cumsum(!truth)/max(1,sum(!truth))
+  
+  dup&lt;-c(probs[-1]&gt;=probs[-length(probs)], FALSE)
+  TPR&lt;-c(0,TPR[!dup],1); FPR&lt;-c(0,FPR[!dup],1)
+  
+  n &lt;- length(TPR)
+  auc&lt;- sum( ((TPR[-1]+TPR[-n])/2) * (FPR[-1]-FPR[-n]) )
+
+  data.frame(acc,sens,spec,ppv,auc)
+}</code></pre>
+<pre class="r"><code>#LOGISTIC REGRESSION
+
+#creating a fit for the logistic regression
+fit &lt;- glm(Demented~as.factor(M.F) + Age + EDUC + SES + scale(nWBV), data = dementia, family = &quot;binomial&quot;)
+coeftest(fit) #output of logistic regression model</code></pre>
+<pre><code>## 
+## z test of coefficients:
+## 
+##                  Estimate Std. Error z value  Pr(&gt;|z|)    
+## (Intercept)      8.684172   3.588378  2.4201 0.0155170 *  
+## as.factor(M.F)M  0.866775   0.417127  2.0780 0.0377128 *  
+## Age             -0.079016   0.034831 -2.2686 0.0232949 *  
+## EDUC            -0.219218   0.109901 -1.9947 0.0460777 *  
+## SES             -0.087040   0.269740 -0.3227 0.7469382    
+## scale(nWBV)     -0.934636   0.270690 -3.4528 0.0005548 ***
+## ---
+## Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1</code></pre>
+<div id="these-variables-were-chosen-because-they-appear-to-be-the-most-meaningful-in-the-dataset-other-variables-were-excluded-for-being-non-informative-or-for-being-adjacent-tests-that-predict-dementia-i-didnt-want-to-include-predictions-in-my-model-designed-to-predict-dementia." class="section level5">
+<h5><em>These variables were chosen because they appear to be the most meaningful in the dataset; other variables were excluded for being non-informative or for being adjacent tests that predict dementia (I didn’t want to include predictions in my model designed to predict dementia).</em></h5>
+<pre class="r"><code>exp(0.866775) #exponentiate coefficient for gender </code></pre>
+<pre><code>## [1] 2.379225</code></pre>
+<pre class="r"><code>exp(-0.079016) #exponentiate coefficient for age</code></pre>
+<pre><code>## [1] 0.9240251</code></pre>
+<pre class="r"><code>exp(-0.2108951) #exponentiate coefficient for years of education </code></pre>
+<pre><code>## [1] 0.809859</code></pre>
+<pre class="r"><code>exp(-0.087040) #exponentiate coefficient for socioeconomic status</code></pre>
+<pre><code>## [1] 0.9166404</code></pre>
+<pre class="r"><code>exp(-0.934636) #exponentiate coefficient for normalized whole brain volume</code></pre>
+<pre><code>## [1] 0.3927288</code></pre>
+</div>
+<div id="gender-age-years-of-education-and-whole-brain-volume-significantly-increase-the-log-odds-of-having-dementia-make-it-more-likely.-being-a-male-increases-the-odds-of-dementia-by-237.9-compared-to-females.-for-ever-one-unit-increase-in-age-the-odds-of-having-dementia-decrease-by-about-7.6.-for-every-one-unit-increase-in-years-of-education-the-odds-of-dementia-decrease-by-19.1-they-change-by-a-factor-of-.809.-for-every-one-unit-increase-in-ses-the-odds-of-dementia-decrease-by-about-8.4-not-significant.-going-up-one-standard-deviation-in-normalized-whole-brain-volume-decreases-odds-of-dementia-by-about-60." class="section level5">
+<h5><em>Gender, age, years of education, and whole brain volume significantly increase the log odds of having dementia (make it more likely). Being a male increases the odds of dementia by 237.9% compared to females. For ever one unit increase in age, the odds of having dementia decrease by about 7.6%. For every one unit increase in years of education, the odds of dementia decrease by 19.1% (they change by a factor of .809). For every one unit increase in SES, the odds of dementia decrease by about 8.4% (not significant). Going up one standard deviation in normalized whole brain volume decreases odds of dementia by about 60%.</em></h5>
+<pre class="r"><code>prob &lt;- predict(fit, type = &quot;response&quot;) #creating a vector of probabilities of dementia based on the model fit
+
+#CONFUSION MATRIX
+table(predict = as.numeric(prob&gt;0.5), truth = dementia$Demented) %&gt;% addmargins</code></pre>
+<pre><code>##        truth
+## predict   0   1 Sum
+##     0    56  21  77
+##     1    16  35  51
+##     Sum  72  56 128</code></pre>
+</div>
+<div id="model-does-decently-according-to-the-confusion-matrix." class="section level5">
+<h5><em>Model does decently according to the confusion matrix.</em></h5>
+<pre class="r"><code>#CLASSIFICATION DIAGNOSTICS
+class_diag(prob, dementia$Demented)</code></pre>
+<pre><code>##         acc  sens      spec       ppv       auc
+## 1 0.7109375 0.625 0.7777778 0.6862745 0.7688492</code></pre>
+</div>
+<div id="the-accuracy-for-this-model-is-0.65625-the-sensitivity-is-0.4642857-and-the-specificity-is-0.8055556.-so-the-model-will-correctly-identify-patients-who-either-do-or-do-not-have-dementia-65.6-of-the-time-while-predicting-true-positives-patients-who-have-dementia-46.4-of-the-time-and-true-negatives-patients-who-do-not-have-dementia-80.6-of-the-time.-the-ppv-is-0.65-indicating-that-the-model-predicts-positives-that-are-actually-positives-65-of-the-time.-in-this-case-out-of-40-predicted-positives-26-were-true-positives-equating-to-65." class="section level5">
+<h5><em>The accuracy for this model is 0.65625, the sensitivity is 0.4642857, and the specificity is 0.8055556. So, the model will correctly identify patients who either do or do not have dementia 65.6% of the time, while predicting true positives (patients who have dementia) 46.4% of the time and true negatives (patients who do not have dementia) 80.6% of the time. The ppv is 0.65, indicating that the model predicts positives that are actually positives 65% of the time. In this case, out of 40 predicted positives, 26 were true positives (equating to 65%).</em></h5>
+<pre class="r"><code>#DENSITY PLOT OF LOGIT
+dementia1 &lt;- dementia
+dementia1$logit &lt;- predict(fit, type = &quot;link&quot;)
+
+dementia1 %&gt;% ggplot(aes(logit,fill = as.factor(Demented)))+geom_density(alpha = 0.4) +
+  geom_vline(xintercept=0)+theme(legend.position=c(.9,.9))+
+  labs(fill=&#39;Demented&#39;) +
+  ggtitle(&quot;Logit Density Plot&quot;)</code></pre>
+<p><img src="Project2_FD_MO_files/figure-html/unnamed-chunk-29-1.png" width="672" /></p>
+</div>
+<div id="the-density-plot-shows-that-the-model-is-more-accurate-than-pure-guesswork-but-there-is-still-a-fairly-high-amount-of-false-positives-and-false-negatives-as-indicated-by-the-overlapping-regions." class="section level5">
+<h5><em>The density plot shows that the model is more accurate than pure guesswork, but there is still a fairly high amount of false positives and false negatives as indicated by the overlapping regions.</em></h5>
+<pre class="r"><code>#ROC PLOT
+#install.packages(&quot;plotROC&quot;)
+library(plotROC) 
+
+ROCplot&lt;-ggplot(dementia)+geom_roc(aes(d=Demented,m=prob), n.cuts=0)+
+ geom_segment(aes(x=0,xend=1,y=0,yend=1),lty=2) +
+  xlab(&quot;FPR&quot;) +
+  ylab(&quot;TPR&quot;) +
+  ggtitle(&quot;ROC Curve&quot;)
+ROCplot</code></pre>
+<p><img src="Project2_FD_MO_files/figure-html/unnamed-chunk-30-1.png" width="672" /></p>
+</div>
+<div id="the-resulting-plot-shows-that-the-current-model-is-performing-above-what-would-be-random-guessing-of-dementia-status." class="section level5">
+<h5><em>The resulting plot shows that the current model is performing above what would be random guessing of dementia status.</em></h5>
+<pre class="r"><code>#10-fold CV
+set.seed(1234)
+k=10
+
+data1&lt;-dementia[sample(nrow(dementia)),]
+folds&lt;-cut(seq(1:nrow(dementia)),breaks=k,labels=F)
+
+diags&lt;-NULL
+for(i in 1:k){
+  train&lt;-data1[folds!=i,]
+  test&lt;-data1[folds==i,]
+  truth&lt;-test$Demented
+  
+  fit&lt;-glm(Demented~M.F + Age + EDUC + SES + eTIV, data=train, family = &quot;binomial&quot;)
+  probs&lt;-predict(fit,newdata = test, type=&quot;response&quot;)
+
+diags&lt;-rbind(diags,class_diag(probs,truth))
+}
+
+diags%&gt;%summarize_all(mean)</code></pre>
+<pre><code>##         acc      sens      spec       ppv       auc
+## 1 0.6173077 0.4021429 0.7657937 0.6316667 0.6632639</code></pre>
+</div>
+<div id="the-average-out-of-sample-classification-diagnostics-are-as-follows-accuracy-is-0.6173077-sensitivity-is-0.4021429-specificity-is-0.7657937-and-ppv-is-0.6316667.-these-are-all-slightly-lower-than-the-corresponsing-classification-diagnostics-for-the-entire-dataset-indicating-that-the-model-is-very-slightly-overfitting." class="section level5">
+<h5><em>The average out-of-sample classification diagnostics are as follows: accuracy is 0.6173077, sensitivity is 0.4021429, specificity is 0.7657937, and ppv is 0.6316667. These are all slightly lower than the corresponsing classification diagnostics for the entire dataset, indicating that the model is very slightly overfitting.</em></h5>
+</div>
+</div>
+<div id="lasso" class="section level2">
+<h2><em>LASSO</em></h2>
+<pre class="r"><code>#LASSO
+#install.packages(&quot;glmnet&quot;)
+library(glmnet)</code></pre>
+<div id="again-some-of-the-variables-are-themselves-predictions-of-dementia-not-including-them-since-i-am-trying-to-predict-dementia-based-on-variables-that-are-not-dementia-predictions.-i-included-a-few-other-variables-that-i-know-do-not-predict-dementia-just-to-show-that-the-lasso-parses-them-out-from-the-variables-that-actually-matter." class="section level5">
+<h5><em>Again, some of the variables are themselves predictions of dementia; not including them, since I am trying to predict dementia based on variables that are not dementia predictions. I included a few other variables that I know do not predict dementia, just to show that the lasso parses them out from the variables that actually matter.</em></h5>
+<pre class="r"><code>#creating a fit that has a bunch of variables from the dataset
+fit &lt;- glm(Demented~M.F + Age + EDUC + SES + eTIV + nWBV + ASF, data = dementia, family = &quot;binomial&quot;)
+coeftest(fit)</code></pre>
+<pre><code>## 
+## z test of coefficients:
+## 
+##                Estimate  Std. Error z value  Pr(&gt;|z|)    
+## (Intercept)  32.1827382  22.5623324  1.4264 0.1537551    
+## M.FM          1.4811416   0.5367832  2.7593 0.0057927 ** 
+## Age          -0.0852691   0.0361948 -2.3558 0.0184810 *  
+## EDUC         -0.2108188   0.1140026 -1.8492 0.0644224 .  
+## SES          -0.2030757   0.2844957 -0.7138 0.4753451    
+## eTIV         -0.0025367   0.0073003 -0.3475 0.7282332    
+## nWBV        -27.3728505   7.5887076 -3.6071 0.0003097 ***
+## ASF           0.6639437   9.3564027  0.0710 0.9434285    
+## ---
+## Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1</code></pre>
+</div>
+<div id="it-seems-like-only-some-of-these-are-significant-and-ought-to-be-included-in-the-final-logistic-regression." class="section level5">
+<h5><em>It seems like only some of these are significant and ought to be included in the final logistic regression.</em></h5>
+<pre class="r"><code>y &lt;- as.matrix(dementia$Demented) #truth values
+x&lt;-model.matrix(fit) %&gt;% as.data.frame %&gt;% dplyr::select(-`(Intercept)`) %&gt;% as.matrix()
+cv&lt;-cv.glmnet(x,y)
+
+lasso1 &lt;- glmnet(x, y, lambda = cv$lambda.1se)
+coef(lasso1) </code></pre>
+<pre><code>## 8 x 1 sparse Matrix of class &quot;dgCMatrix&quot;
+##                      s0
+## (Intercept)  1.97271353
+## M.FM         0.11114016
+## Age          .         
+## EDUC        -0.01480071
+## SES          .         
+## eTIV         .         
+## nWBV        -1.85556650
+## ASF          .</code></pre>
+</div>
+<div id="this-changes-very-slightly-every-time-but-the-variables-i-get-most-often-are-gender-education-and-normalized-whole-brain-volume.-these-should-be-the-strongest-predictors-of-dimentia-status." class="section level5">
+<h5><em>This changes very slightly every time, but the variables I get most often are gender, education, and normalized whole brain volume. These should be the strongest predictors of dimentia status.</em></h5>
+<pre class="r"><code>#creating a new fit with only the lasso variables
+fit1 &lt;- glm(Demented~M.F + EDUC + nWBV, data = dementia, family = &quot;binomial&quot;) 
+
+prob1 &lt;- predict(fit1, type = &quot;response&quot;) #generating a vector of probabilities
+
+class_diag(prob1, dementia$Demented) #classification diagnostics</code></pre>
+<pre><code>##         acc      sens spec       ppv       auc
+## 1 0.6484375 0.5178571 0.75 0.6170213 0.7460317</code></pre>
+<pre class="r"><code>#confusion matrix using only lasso variables
+table(predict=as.numeric(prob1&gt;.5),truth=dementia$Demented)%&gt;%addmargins</code></pre>
+<pre><code>##        truth
+## predict   0   1 Sum
+##     0    54  27  81
+##     1    18  29  47
+##     Sum  72  56 128</code></pre>
+</div>
+<div id="does-pretty-well" class="section level5">
+<h5><em>Does pretty well!</em></h5>
+<pre class="r"><code>#10-fold CV on LASSO regression:
+set.seed(1234)
+k=10
+
+data1&lt;-dementia[sample(nrow(dementia)),] #put dataset in random order
+folds&lt;-cut(seq(1:nrow(dementia)),breaks=k,labels=F) #create folds
+
+diags&lt;-NULL
+for(i in 1:k){ # FOR EACH OF 10 FOLDS
+  train&lt;-data1[folds!=i,] #CREATE TRAINING SET
+  test&lt;-data1[folds==i,] #CREATE TESTING SET
+  truth&lt;-test$Demented
+  
+  fit&lt;- glm(Demented~M.F + EDUC + nWBV, data = train, family=&quot;binomial&quot;)
+  probs&lt;- predict(fit1,newdata = test,type=&quot;response&quot;)
+  
+  diags&lt;-rbind(diags,class_diag(probs,truth)) 
+}
+
+apply(diags,2,mean)</code></pre>
+<pre><code>##       acc      sens      spec       ppv       auc 
+## 0.6480769 0.4804762 0.7526587 0.5904762 0.7159524</code></pre>
+</div>
+<div id="out-of-sample-accuracy-for-the-lasso-regression-is-0.6474359-while-the-out-of-sample-accuracy-for-the-original-logistic-regression-was-0.6173077.-these-values-are-fairly-close-with-the-lasso-regression-having-the-added-advantage-of-containing-fewer-predictor-variables-3-instead-of-5-and-performing-slightly-better.-the-lasso-regression-also-has-a-slightly-higher-out-of-sample-auc-of-0.7415476-compared-to-an-out-of-sample-auc-of-0.6632639-in-the-original-logistic-regression.-the-out-of-sample-classification-diagnostics-for-the-lasso-regression-are-slightly-higher-than-the-corresponding-classification-diagnostics-for-the-entire-dataset-indicating-that-the-lasso-regression-is-a-better-model-for-predicting-dementia-status-using-out-of-sample-data." class="section level5">
+<h5><em>Out-of-sample accuracy for the lasso regression is 0.6474359, while the out-of-sample accuracy for the original logistic regression was 0.6173077. These values are fairly close, with the lasso regression having the added advantage of containing fewer predictor variables (3 instead of 5) and performing slightly better. The lasso regression also has a slightly higher out-of-sample AUC of 0.7415476, compared to an out-of-sample AUC of 0.6632639 in the original logistic regression. The out-of-sample classification diagnostics for the lasso regression are slightly higher than the corresponding classification diagnostics for the entire dataset, indicating that the lasso regression is a better model for predicting dementia status using out-of-sample data.</em></h5>
+<pre class="r"><code>#ROC plot using only LASSO variables:
+ROCplot1&lt;-ggplot(dementia)+geom_roc(aes(d=Demented,m=prob1), n.cuts=0)+
+ geom_segment(aes(x=0,xend=1,y=0,yend=1),lty=2) +
+  xlab(&quot;FPR&quot;) +
+  ylab(&quot;TPR&quot;) +
+  ggtitle(&quot;ROC Curve for LASSO Fit&quot;)
+ROCplot1</code></pre>
+<p><img src="Project2_FD_MO_files/figure-html/unnamed-chunk-38-1.png" width="672" /></p>
+</div>
+<div id="this-roc-curve-is-slightly-better-than-the-previous-one." class="section level5">
+<h5><em>This ROC curve is slightly better than the previous one.</em></h5>
+</div>
+</div>
+</div>
