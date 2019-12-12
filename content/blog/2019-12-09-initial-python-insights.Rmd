@@ -7,7 +7,7 @@ categories: []
 tags: []
 description: ''
 ---
-### **Introduction**
+### **Reticulate and Logistic Regression**
 As a beginner in the world of programming and data science, learning R and Python have been valuable in whetting my appetite for further learning in how to manage and interpret data. While I have spent a little more time working in R the past few months, I want to briefly discuss some of my initial insights regarding Python.
 
 First, I appreciate how Python and R can interact; for someone more comfortable with R, it is good to know that these languages can speak to each other to accomplish desired tasks. Here is an example of me using the "reticulate" package to get R and Python working together to create a logistic regression reminiscent of that in Project 2: 
