@@ -1,11 +1,87 @@
 ---
-title: Initial Python Insights
+title: Python Insights
 author: Mason Ouren
-date: '2019-12-09'
+date: '2019-12-12'
 slug: initial-python-insights
 categories: []
 tags: []
 description: ''
 ---
 ### **Introduction**
-hi :)
+As a beginner in the world of programming and data science, learning R and Python have been valuable in whetting my appetite for further learning in how to manage and interpret data. While I have spent a little more time working in R the past few months, I want to briefly discuss some of my initial insights regarding Python.
+
+First, I appreciate how Python and R can interact; for someone more comfortable with R, it is good to know that these languages can speak to each other to accomplish desired tasks. Here is an example of me using the "reticulate" package to get R and Python working together to create a logistic regression reminiscent of that in Project 2: 
+
+```{r}
+#R code chunk
+library(reticulate)
+```
+
+```{r, echo=FALSE}
+#R code chunk
+library(dplyr); library(tidyverse)
+```
+
+```{python, echo=FALSE}
+from sklearn.datasets import make_classification
+from matplotlib import pyplot as plt
+from sklearn.linear_model import LogisticRegression
+import seaborn as sns
+sns.set()
+from sklearn.model_selection import train_test_split
+from sklearn.metrics import confusion_matrix
+import pandas as pd
+```
+
+*Here, I read in the dementia_untidy dataset from my Project 2 into the environment using pandas.*
+```{python}
+#Python code chunk
+import pandas
+dementia_untidy = pandas.read_csv("C:/Users/mason/OneDrive/SDS 348 Comp Bio/Dementia_Table.csv")
+```
+
+*Next, I used dplyr function in R to manipulate the dementia_untidy dataset into a more manageable format.*
+```{r}
+#R code chunk
+dementia <- py$dementia_untidy %>% filter(Visit == 1) %>% mutate(Demented = recode(Group, "Nondemented" = 0, "Demented" = 1)) %>% select(-Group) %>% na.omit()
+```
+
+*I then used python to assign simple variable names to several of the columns that I know to be influential predictors of dementia status (see the LASSO portion of Project 2 under the "Projects" tab).*
+```{python}
+#Python code chunk
+x = r.dementia.loc[:,"Demented"]
+a = r.dementia.loc[:,"EDUC"]
+b = r.dementia.loc[:,"nWBV"]
+c = r.dementia.loc[:,"M/F"]
+```
+
+*Then, back in R, I created a model fit and a vector of probabilities that a given patient has dementia based on the model fit.*
+```{r}
+#R code chunk
+fit <- glm(py$x~py$a + py$b + py$c, data = dementia, family = "binomial") 
+prob <- predict(fit, type = "response")
+```
+
+```{r, echo=FALSE}
+library(plotROC) 
+
+ROCplot<-ggplot(dementia)+geom_roc(aes(d=Demented,m=prob), n.cuts=0)+
+ geom_segment(aes(x=0,xend=1,y=0,yend=1),lty=2) +
+  xlab("FPR") +
+  ylab("TPR") +
+  ggtitle("ROC Curve")
+ROCplot
+```
+*And here's the ROC curve for the model! I used R again here, since ggplot has my heart. While there is plenty of room for improvement in the model, these three predictors do a fairly good job of estimating dementia status (the dotted line is pure guessing, so an ROC curve above the dotted line means that the model is doing better than simply guessing randomly).*
+
+There are clearly an enormous number of uses for this kind of cross-talk between languages, but it is very helpful for those who are used to one or the other and need to draw on bits and pieces of knowledge from both in order to make a project work. And while this could have been done entirely in either R or Python, it's neat to see that there is interplay between them!
+
+
+Additionally, so as to not make light of the subject matter of this demonstration, please consider taking some time to participate in the fight to remedy dementia. 
+
+![](/blog/2019-12-09-initial-python-insights_files/dementia.PNG)
+
+
+
+
+

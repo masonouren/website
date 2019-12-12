@@ -1,5 +1,5 @@
 ---
-title: "Computational Biology Project 2"
+title: "Project 2: Modeling, Inference, and Prediction"
 author: "Mason Ouren"
 date: "2019-11-26"
 output: html_document
