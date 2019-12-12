@@ -1,11 +1,11 @@
 ---
-title: Python Insights
-author: Mason Ouren
+title: "Python Insights"
+author: "Mason Ouren"
 date: '2019-12-12'
-slug: initial-python-insights
-categories: []
-tags: []
 description: ''
+slug: initial-python-insights
+tags: []
+categories: []
 ---
 ### **Reticulate and Logistic Regression**
 As a beginner in the world of programming and data science, learning R and Python have been valuable in whetting my appetite for further learning in how to manage and interpret data. While I have spent a little more time working in R the past few months, I want to briefly discuss some of my initial insights regarding Python.
@@ -79,8 +79,7 @@ There are clearly an enormous number of uses for this kind of cross-talk between
 
 Additionally, so as to not make light of the subject matter of this demonstration, please consider taking some time to participate in the fight to remedy dementia. 
 
-![](/blog/2019-12-09-initial-python-insights_files/dementia.PNG)
-
+IMAGE
 
 
 
