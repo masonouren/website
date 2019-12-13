@@ -77,9 +77,7 @@ ROCplot
 There are clearly an enormous number of uses for this kind of cross-talk between languages, but it is very helpful for those who are used to one or the other and need to draw on bits and pieces of knowledge from both in order to make a project work. And while this could have been done entirely in either R or Python, it's neat to see that there is interplay between them!
 
 
-Additionally, so as to not make light of the subject matter of this demonstration, please consider taking some time to participate in the fight to remedy dementia. 
-
-IMAGE
+Additionally, so as to not make light of the subject matter of this demonstration, please consider taking some time to participate in the fight to remedy dementia!
 
 
 
