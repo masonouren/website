@@ -1,5 +1,5 @@
 ---
-title: "Computational Biology Project 2"
+title: "Project 2: Modeling, Inference, and Prediction"
 author: "Mason Ouren"
 date: "2019-11-26"
 output: html_document
@@ -131,7 +131,7 @@ SSW&lt;-new%&gt;%group_by(Demented)%&gt;%select(EDUC,nWBV)%&gt;%
 <p><img src="/Project2_files/figure-html/unnamed-chunk-11-1.png" width="672" /></p>
 <pre class="r"><code>#Is it significantly different than an expected F value?
 mean(Fs&gt;F_obs) #0.007</code></pre>
-<pre><code>## [1] 0.007</code></pre>
+<pre><code>## [1] 0.005</code></pre>
 </div>
 <div id="results-reject-the-null-there-is-a-significant-mean-difference-across-at-least-one-of-the-variables-education-or-normalized-whole-brain-volume-p-0.007." class="section level5">
 <h5><em>Results: Reject the null, there is a significant mean difference across at least one of the variables (education or normalized whole brain volume) (p = 0.007).</em></h5>
@@ -273,7 +273,7 @@ samp_distn&lt;-replicate(5000, {
 <pre class="r"><code>#Estimated SEs
 samp_distn%&gt;%t%&gt;%as.data.frame%&gt;%summarize_all(sd)</code></pre>
 <pre><code>##   (Intercept)   Age_center   Demented1 Age_center:Demented1
-## 1 0.003610435 0.0004169356 0.005195317         0.0006654352</code></pre>
+## 1  0.00356999 0.0004223505 0.005146159          0.000654253</code></pre>
 </div>
 <div id="the-boostrapped-ses-are-almost-identical-to-the-robust-and-original-ses-in-fact-some-are-slightly-lower-than-the-robust-ses-and-the-original-ses-but-only-very-slightly-again-they-are-virtually-all-the-same-small-values.-the-ses-for-the-original-regression-robust-ses-and-boostrapped-ses-respectively-are-as-follows-intercept-0.0034674-0.00363754-0.003526455-age_center-0.0004241-0.00042445-0.0004217431-dementia-status-0.0052431-0.00525207-0.005134726-interaction-between-age-and-dementia-status-0.0007003-0.00066166-0.0006728562.-in-cases-where-the-se-increased-between-the-originalrobustbootstrapped-ses-the-p-value-increased-and-the-t-value-decreased.-in-cases-where-se-decreased-between-the-originalrobustboostrapped-ses-the-p-value-decreased-and-the-t-value-increased.-since-the-changes-in-ses-were-so-small-between-these-adjustments-the-significance-of-the-variablesinteraction-did-not-change." class="section level5">
 <h5><em>The boostrapped SEs are almost identical to the robust and original SEs; in fact, some are slightly lower than the robust SEs and the original SEs (but only VERY slightly; again, they are virtually all the same small values). The SEs for the original regression, robust SEs, and boostrapped SEs (respectively) are as follows: Intercept: 0.0034674, 0.00363754, 0.003526455; Age_center: 0.0004241, 0.00042445, 0.0004217431; Dementia status: 0.0052431, 0.00525207, 0.005134726; Interaction between age and dementia status: 0.0007003, 0.00066166, 0.0006728562. In cases where the SE increased between the original/robust/bootstrapped SEs, the p value increased and the t value decreased. In cases where SE decreased between the original/robust/boostrapped SEs, the p value decreased and the t value increased. Since the changes in SEs were so small between these adjustments, the significance of the variables/interaction did not change.</em></h5>

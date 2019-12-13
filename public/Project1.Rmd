@@ -1,5 +1,5 @@
 ---
-title: "Project 1"
+title: "Project 1: Data Wrangling and Exploratory Analysis"
 author: "Mason Ouren"
 date: "2019-10-20"
 output: html_document

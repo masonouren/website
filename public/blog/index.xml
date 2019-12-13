@@ -6,19 +6,19 @@
     <description>Recent content in Blogs on Mason Ouren</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-US</language>
-    <lastBuildDate>Mon, 09 Dec 2019 00:00:00 +0000</lastBuildDate>
+    <lastBuildDate>Thu, 12 Dec 2019 00:00:00 +0000</lastBuildDate>
     
 	<atom:link href="/blog/index.xml" rel="self" type="application/rss+xml" />
     
     
     <item>
-      <title>Initial Python Insights</title>
+      <title>Python Insights</title>
       <link>/blog/initial-python-insights/</link>
-      <pubDate>Mon, 09 Dec 2019 00:00:00 +0000</pubDate>
+      <pubDate>Thu, 12 Dec 2019 00:00:00 +0000</pubDate>
       
       <guid>/blog/initial-python-insights/</guid>
-      <description>Introductionhi :)
-</description>
+      <description>Reticulate and Logistic RegressionAs a beginner in the world of programming and data science, learning R and Python have been valuable in whetting my appetite for further learning in how to manage and interpret data. While I have spent a little more time working in R the past few months, I want to briefly discuss some of my initial insights regarding Python.
+First, I appreciate how Python and R can interact; for someone more comfortable with R, it is good to know that these languages can speak to each other to accomplish desired tasks.</description>
     </item>
     
   </channel>
